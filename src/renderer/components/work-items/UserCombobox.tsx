@@ -12,21 +12,24 @@ import {
 } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { useWorkItemFiltersStore } from "@/stores/work-item-filters";
 
 interface UserComboboxProps {
-  selectedUser: Identity | "me" | null;
   users: Identity[] | undefined;
-  onSelect: (user: Identity | "me" | null) => void;
-  label: string;
 }
 
-export function UserCombobox({ selectedUser, users, onSelect, label }: UserComboboxProps) {
+export function UserCombobox({ users }: UserComboboxProps) {
   const [open, setOpen] = useState(false);
+  const selectedUser = useWorkItemFiltersStore((state) => state.selectedUser);
+  const setSelectedUser = useWorkItemFiltersStore((state) => state.setSelectedUser);
 
   const handleSelect = (user: Identity | "me" | null) => {
-    onSelect(user);
+    setSelectedUser(user);
     setOpen(false);
   };
+
+  const label =
+    selectedUser === "me" ? "Me" : selectedUser === null ? "All" : selectedUser.displayName;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

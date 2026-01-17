@@ -1,32 +1,28 @@
 import type { WorkItemType, WorkItemTypeState } from "@shared/types";
-import { useMutation, useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useMutation,
+  useQueries,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { ChevronDown, ChevronRight } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { FilterBar, WorkItemRow, WorkItemRowSkeleton } from "@/components/work-items";
-import { useDebouncedValue } from "@/hooks/useDebouncedValue";
-import { useWorkItemFilters } from "@/hooks/useWorkItemFilters";
 import { workItemTypes } from "@/lib/work-item-utils";
+import { useWorkItemFiltersStore } from "@/stores/work-item-filters";
 
 export function WorkItemsPage() {
   const queryClient = useQueryClient();
   const [assignedOpen, setAssignedOpen] = useState(true);
-  const [searchText, setSearchText] = useState("");
-  const debouncedSearchText = useDebouncedValue(searchText, 300);
   const [updatingId, setUpdatingId] = useState<number | null>(null);
 
-  const {
-    filters,
-    selectedUser,
-    selectedIteration,
-    toggleType,
-    handleUserSelect,
-    handleIterationSelect,
-    getSelectedUserLabel,
-  } = useWorkItemFilters();
+  const filters = useWorkItemFiltersStore((state) => state.filters);
+  const selectedUser = useWorkItemFiltersStore((state) => state.selectedUser);
 
   const { data: iterations } = useQuery({
     queryKey: ["iterations"],
@@ -47,6 +43,7 @@ export function WorkItemsPage() {
   } = useQuery({
     queryKey: ["workItems", filters],
     queryFn: () => window.ado.workItems.list(filters),
+    placeholderData: keepPreviousData,
   });
 
   const statesQueries = useQueries({
@@ -80,13 +77,6 @@ export function WorkItemsPage() {
     updateStatusMutation.mutate({ id, state });
   };
 
-  const filteredItems = useMemo(() => {
-    if (!workItems) return undefined;
-    if (!debouncedSearchText) return workItems;
-    const search = debouncedSearchText.toLowerCase();
-    return workItems.filter((item) => item.title.toLowerCase().includes(search));
-  }, [workItems, debouncedSearchText]);
-
   const sectionTitle =
     selectedUser === "me"
       ? "Assigned to Me"
@@ -96,19 +86,7 @@ export function WorkItemsPage() {
 
   return (
     <div className="h-full bg-gray-50">
-      <FilterBar
-        selectedUser={selectedUser}
-        selectedUserLabel={getSelectedUserLabel()}
-        users={projectUsers}
-        onUserSelect={handleUserSelect}
-        selectedIteration={selectedIteration}
-        iterations={iterations}
-        onIterationSelect={handleIterationSelect}
-        selectedTypes={filters.types}
-        onTypeToggle={toggleType}
-        searchText={searchText}
-        onSearchChange={setSearchText}
-      />
+      <FilterBar users={projectUsers} iterations={iterations} />
 
       <div className="p-6">
         {error ? (
@@ -130,7 +108,7 @@ export function WorkItemsPage() {
                   )}
                   <span className="font-semibold text-gray-950">{sectionTitle}</span>
                   {!isLoading && (
-                    <Badge variant="primary-subtle" size="xs" text={filteredItems?.length ?? 0} />
+                    <Badge variant="primary-subtle" size="xs" text={workItems?.length ?? 0} />
                   )}
                 </button>
               </CollapsibleTrigger>
@@ -141,9 +119,9 @@ export function WorkItemsPage() {
                       <WorkItemRowSkeleton key={i} />
                     ))}
                   </div>
-                ) : filteredItems && filteredItems.length > 0 ? (
+                ) : workItems && workItems.length > 0 ? (
                   <div>
-                    {filteredItems.map((item) => (
+                    {workItems.map((item) => (
                       <WorkItemRow
                         key={item.id}
                         item={item}

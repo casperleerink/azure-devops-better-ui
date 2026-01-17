@@ -1,13 +1,11 @@
-import type { WorkItemType } from "@shared/types";
 import { Button } from "@/components/ui/button";
 import { getTypeIcon, workItemTypes } from "@/lib/work-item-utils";
+import { useWorkItemFiltersStore } from "@/stores/work-item-filters";
 
-interface TypeFilterButtonsProps {
-  selectedTypes: WorkItemType[];
-  onToggle: (type: WorkItemType) => void;
-}
+export function TypeFilterButtons() {
+  const selectedTypes = useWorkItemFiltersStore((state) => state.filters.types);
+  const toggleType = useWorkItemFiltersStore((state) => state.toggleType);
 
-export function TypeFilterButtons({ selectedTypes, onToggle }: TypeFilterButtonsProps) {
   return (
     <div className="flex items-center gap-2">
       {workItemTypes.map((type) => (
@@ -15,7 +13,7 @@ export function TypeFilterButtons({ selectedTypes, onToggle }: TypeFilterButtons
           key={type}
           variant={selectedTypes.includes(type) ? "subtle" : "ghost"}
           size="sm"
-          onClick={() => onToggle(type)}
+          onClick={() => toggleType(type)}
           className="gap-1.5"
         >
           {getTypeIcon(type)}

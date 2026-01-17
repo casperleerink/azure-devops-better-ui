@@ -14,8 +14,7 @@
     "start": "electron .",
     "pack": "bun run build && electron-builder --dir",
     "dist": "bun run build && electron-builder",
-    "lint": "biome check .",
-    "lint:fix": "biome check --write .",
+    "lint": "biome check --write .",
     "format": "biome format --write .",
     "typecheck": "tsc --noEmit"
   },
@@ -63,7 +62,8 @@
     "react-dom": "^19.2.3",
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.18",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "zustand": "^5.0.10"
   },
   "build": {
     "appId": "com.hoomanstudio.azure-devops-better-ui",

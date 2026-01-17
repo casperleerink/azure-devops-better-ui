@@ -12,6 +12,17 @@ import type {
 import { getPat } from "./secure-store";
 import { getConfig } from "./store";
 
+/** Maximum number of work items to fetch in a single batch request */
+const BATCH_SIZE = 200;
+
+/** Default timeout for API requests in milliseconds */
+const REQUEST_TIMEOUT_MS = 30000;
+
+/** Escape single quotes in WIQL strings to prevent injection */
+function escapeWiql(value: string): string {
+  return value.replace(/'/g, "''");
+}
+
 function getAuthHeader(): string {
   const pat = getPat();
   if (!pat) {
@@ -20,54 +31,56 @@ function getAuthHeader(): string {
   return `Basic ${Buffer.from(`:${pat}`).toString("base64")}`;
 }
 
-async function adoFetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+async function adoFetchInternal<T>(
+  endpoint: string,
+  options: RequestInit = {},
+  includeProject: boolean,
+): Promise<T> {
   const config = getConfig();
   if (!config) {
     throw new Error("Azure DevOps not configured");
   }
 
-  const url = `${config.organizationUrl}/${config.projectName}/_apis/${endpoint}`;
+  const url = includeProject
+    ? `${config.organizationUrl}/${config.projectName}/_apis/${endpoint}`
+    : `${config.organizationUrl}/_apis/${endpoint}`;
 
-  const response = await fetch(url, {
-    ...options,
-    headers: {
-      Authorization: getAuthHeader(),
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`Azure DevOps API error: ${response.status} ${text}`);
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+      headers: {
+        Authorization: getAuthHeader(),
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`Azure DevOps API error: ${response.status} ${text}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      throw new Error(`Azure DevOps API request timed out after ${REQUEST_TIMEOUT_MS}ms`);
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeoutId);
   }
+}
 
-  return response.json();
+async function adoFetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  return adoFetchInternal<T>(endpoint, options, true);
 }
 
 async function adoFetchOrg<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-  const config = getConfig();
-  if (!config) {
-    throw new Error("Azure DevOps not configured");
-  }
-
-  const url = `${config.organizationUrl}/_apis/${endpoint}`;
-
-  const response = await fetch(url, {
-    ...options,
-    headers: {
-      Authorization: getAuthHeader(),
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`Azure DevOps API error: ${response.status} ${text}`);
-  }
-
-  return response.json();
+  return adoFetchInternal<T>(endpoint, options, false);
 }
 
 export async function testConnection(): Promise<{ success: boolean; error?: string }> {
@@ -96,9 +109,9 @@ export async function testConnection(): Promise<{ success: boolean; error?: stri
 function buildWiqlQuery(filters: WorkItemListFilters): string {
   const conditions: string[] = [];
 
-  // Work item types
+  // Work item types (escaped to prevent WIQL injection)
   if (filters.types.length > 0) {
-    const typeConditions = filters.types.map((t) => `[System.WorkItemType] = '${t}'`);
+    const typeConditions = filters.types.map((t) => `[System.WorkItemType] = '${escapeWiql(t)}'`);
     conditions.push(`(${typeConditions.join(" OR ")})`);
   }
 
@@ -106,28 +119,28 @@ function buildWiqlQuery(filters: WorkItemListFilters): string {
   if (filters.assignedTo === "me") {
     conditions.push("[System.AssignedTo] = @Me");
   } else if (filters.assignedTo && typeof filters.assignedTo === "object") {
-    conditions.push(`[System.AssignedTo] = '${filters.assignedTo.identityId}'`);
+    conditions.push(`[System.AssignedTo] = '${escapeWiql(filters.assignedTo.identityId)}'`);
   }
 
-  // States
+  // States (escaped to prevent WIQL injection)
   if (filters.states && filters.states.length > 0) {
-    const stateConditions = filters.states.map((s) => `[System.State] = '${s}'`);
+    const stateConditions = filters.states.map((s) => `[System.State] = '${escapeWiql(s)}'`);
     conditions.push(`(${stateConditions.join(" OR ")})`);
   }
 
-  // Text search
+  // Text search (escaped to prevent WIQL injection)
   if (filters.text) {
-    conditions.push(`[System.Title] CONTAINS '${filters.text}'`);
+    conditions.push(`[System.Title] CONTAINS '${escapeWiql(filters.text)}'`);
   }
 
-  // Area Path
+  // Area Path (escaped to prevent WIQL injection)
   if (filters.areaPath) {
-    conditions.push(`[System.AreaPath] UNDER '${filters.areaPath}'`);
+    conditions.push(`[System.AreaPath] UNDER '${escapeWiql(filters.areaPath)}'`);
   }
 
-  // Iteration Path
+  // Iteration Path (escaped to prevent WIQL injection)
   if (filters.iterationPath) {
-    conditions.push(`[System.IterationPath] UNDER '${filters.iterationPath}'`);
+    conditions.push(`[System.IterationPath] UNDER '${escapeWiql(filters.iterationPath)}'`);
   }
 
   // Changed since
@@ -200,13 +213,12 @@ export async function listWorkItems(filters: WorkItemListFilters): Promise<WorkI
     return [];
   }
 
-  // Batch fetch work items (max 200 at a time)
+  // Batch fetch work items
   const ids = wiqlResult.workItems.map((w) => w.id);
-  const batchSize = 200;
   const results: WorkItemSummary[] = [];
 
-  for (let i = 0; i < ids.length; i += batchSize) {
-    const batchIds = ids.slice(i, i + batchSize);
+  for (let i = 0; i < ids.length; i += BATCH_SIZE) {
+    const batchIds = ids.slice(i, i + BATCH_SIZE);
     const idsParam = batchIds.join(",");
     const fields = [
       "System.Id",
@@ -399,8 +411,8 @@ export async function listProjectUsers(): Promise<Identity[]> {
     return [];
   }
 
-  // Fetch up to 200 work items to extract unique users
-  const ids = wiqlResult.workItems.slice(0, 200).map((w) => w.id);
+  // Fetch up to BATCH_SIZE work items to extract unique users
+  const ids = wiqlResult.workItems.slice(0, BATCH_SIZE).map((w) => w.id);
   const idsParam = ids.join(",");
 
   const result = await adoFetch<{ value: any[] }>(

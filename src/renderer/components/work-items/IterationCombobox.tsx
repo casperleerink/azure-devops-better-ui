@@ -12,22 +12,19 @@ import {
 } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { useWorkItemFiltersStore } from "@/stores/work-item-filters";
 
 interface IterationComboboxProps {
-  selectedIteration: Iteration | null;
   iterations: Iteration[] | undefined;
-  onSelect: (iteration: Iteration | null) => void;
 }
 
-export function IterationCombobox({
-  selectedIteration,
-  iterations,
-  onSelect,
-}: IterationComboboxProps) {
+export function IterationCombobox({ iterations }: IterationComboboxProps) {
   const [open, setOpen] = useState(false);
+  const selectedIteration = useWorkItemFiltersStore((state) => state.selectedIteration);
+  const setSelectedIteration = useWorkItemFiltersStore((state) => state.setSelectedIteration);
 
   const handleSelect = (iteration: Iteration | null) => {
-    onSelect(iteration);
+    setSelectedIteration(iteration);
     setOpen(false);
   };
 

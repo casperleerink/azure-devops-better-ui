@@ -25,7 +25,6 @@ function MasonryGroup({ children, className }: Props) {
       const rowSpan = Math.ceil(
         (item.firstChild.getBoundingClientRect().height + rowGap) / (rowHeight + rowGap),
       );
-      console.log(rowSpan);
       item.style.gridRowEnd = `span ${rowSpan}`;
     }
   }, []);
