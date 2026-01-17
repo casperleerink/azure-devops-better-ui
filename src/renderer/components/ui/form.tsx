@@ -1,21 +1,20 @@
 "use client";
 
-import * as React from "react";
-import * as LabelPrimitive from "@radix-ui/react-label";
+import type * as LabelPrimitive from "@radix-ui/react-label";
 import { Slot } from "@radix-ui/react-slot";
+import { cva, type VariantProps } from "class-variance-authority";
+import { AsteriskIcon } from "lucide-react";
+import * as React from "react";
 import {
   Controller,
-  ControllerProps,
-  FieldPath,
-  FieldValues,
+  type ControllerProps,
+  type FieldPath,
+  type FieldValues,
   FormProvider,
   useFormContext,
 } from "react-hook-form";
-
-import { cn } from "~/lib/utils";
 import { Label } from "~/components/ui/label";
-import { cva, VariantProps } from "class-variance-authority";
-import { AsteriskIcon } from "lucide-react";
+import { cn } from "~/lib/utils";
 
 const Form = FormProvider;
 
@@ -26,9 +25,7 @@ type FormFieldContextValue<
   name: TName;
 };
 
-const FormFieldContext = React.createContext<FormFieldContextValue>(
-  {} as FormFieldContextValue,
-);
+const FormFieldContext = React.createContext<FormFieldContextValue>({} as FormFieldContextValue);
 
 const FormField = <
   TFieldValues extends FieldValues = FieldValues,
@@ -70,9 +67,7 @@ type FormItemContextValue = {
   id: string;
 };
 
-const FormItemContext = React.createContext<FormItemContextValue>(
-  {} as FormItemContextValue,
-);
+const FormItemContext = React.createContext<FormItemContextValue>({} as FormItemContextValue);
 
 const formItemVariants = cva(
   "group flex flex-col gap-1 p-1.5 border rounded-lg focus-within:border-blue-500/70 focus-within:ring-4 focus-within:ring-blue-500/10 transition-colors",
@@ -103,11 +98,7 @@ const FormItem = React.forwardRef<
   return (
     <FormItemContext.Provider value={{ id }}>
       <div className="flex w-full flex-col gap-2">
-        <div
-          ref={ref}
-          className={formItemVariants({ variant, className })}
-          {...props}
-        />
+        <div ref={ref} className={formItemVariants({ variant, className })} {...props} />
         <FormMessage />
       </div>
     </FormItemContext.Provider>
@@ -145,18 +136,13 @@ const FormControl = React.forwardRef<
   React.ElementRef<typeof Slot>,
   React.ComponentPropsWithoutRef<typeof Slot>
 >(({ ...props }, ref) => {
-  const { error, formItemId, formDescriptionId, formMessageId } =
-    useFormField();
+  const { error, formItemId, formDescriptionId, formMessageId } = useFormField();
 
   return (
     <Slot
       ref={ref}
       id={formItemId}
-      aria-describedby={
-        !error
-          ? `${formDescriptionId}`
-          : `${formDescriptionId} ${formMessageId}`
-      }
+      aria-describedby={!error ? `${formDescriptionId}` : `${formDescriptionId} ${formMessageId}`}
       aria-invalid={!!error}
       {...props}
     />

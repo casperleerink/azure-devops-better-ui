@@ -1,5 +1,5 @@
-import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
+import type * as React from "react";
 
 import { cn } from "~/lib/utils";
 
@@ -56,10 +56,7 @@ export interface BadgeProps
   text?: string | number;
 }
 
-const textPadding: Record<
-  NonNullable<VariantProps<typeof badgeVariants>["size"]>,
-  string
-> = {
+const textPadding: Record<NonNullable<VariantProps<typeof badgeVariants>["size"]>, string> = {
   xs: "px-0.5",
   sm: "px-0.5",
   md: "px-0.5",
@@ -72,9 +69,7 @@ function Badge({ className, variant, size, icon, text, ...props }: BadgeProps) {
     <div className={cn(badgeVariants({ variant, size }), className)} {...props}>
       {icon ?? null}
       {text ? (
-        <span className={cn(textPadding[size ?? "md"], "whitespace-nowrap")}>
-          {text}
-        </span>
+        <span className={cn(textPadding[size ?? "md"], "whitespace-nowrap")}>{text}</span>
       ) : null}
     </div>
   );

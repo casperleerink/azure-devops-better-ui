@@ -1,5 +1,5 @@
-import { app, BrowserWindow, ipcMain } from "electron";
-import path from "path";
+import path from "node:path";
+import { app, BrowserWindow } from "electron";
 import { registerIpcHandlers } from "./ipc";
 
 let mainWindow: BrowserWindow | null = null;

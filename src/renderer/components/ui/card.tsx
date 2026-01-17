@@ -13,7 +13,7 @@ const CardRow = React.forwardRef<
     <div
       ref={ref}
       className={cn(
-        "border-alpha/5 flex items-center justify-between gap-8 border-t py-4",
+        "border-alpha/5 flex items-center justify-between gap-8 border-t px-6 py-4",
         className,
       )}
       {...props}
@@ -32,7 +32,7 @@ const CardRowLabel = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "flex flex-1 items-center gap-4 [&_svg]:size-5 [&_svg]:opacity-30",
+      "flex flex-1 items-center gap-4 text-gray-600 [&_svg]:size-5 [&_svg]:opacity-30",
       className,
     )}
     {...props}
@@ -73,14 +73,12 @@ const CardRowLabelNew = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "flex shrink-0 items-center gap-4 sm:w-36 [&_svg]:size-4 [&_svg]:opacity-40",
+      "flex shrink-0 items-center gap-4 text-gray-600 sm:w-36 [&_svg]:size-4 [&_svg]:opacity-40",
       className,
     )}
     {...props}
   >
-    <div className="flex size-6 items-center justify-center">
-      {icon ?? null}
-    </div>
+    <div className="flex size-6 items-center justify-center">{icon ?? null}</div>
     <span className="text-sm font-medium">{label}</span>
   </div>
 ));

@@ -1,19 +1,14 @@
 "use client";
 
-import * as React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import type * as React from "react";
 import { DayPicker } from "react-day-picker";
-
-import { cn } from "~/lib/utils";
 import { buttonVariants } from "~/components/ui/button";
+import { cn } from "~/lib/utils";
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>;
 
-function Calendar({
-  className,
-  showOutsideDays = true,
-  ...props
-}: CalendarProps) {
+function Calendar({ className, showOutsideDays = true, ...props }: CalendarProps) {
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
@@ -21,8 +16,7 @@ function Calendar({
       classNames={{
         months: "relative flex flex-col gap-4",
         month: "space-y-4",
-        month_caption:
-          "flex justify-center pt-1 relative items-center pointer-events-none",
+        month_caption: "flex justify-center pt-1 relative items-center pointer-events-none",
         caption_label: "text-sm font-medium",
         nav: "absolute inset-x-0 top-3.5 flex items-center",
         button_next: cn(
@@ -51,8 +45,7 @@ function Calendar({
         day_button: "size-6 shrink-0 flex items-center justify-center",
         range_start: "day-range-start",
         range_end: "day-range-end",
-        selected:
-          "bg-blue-500 text-white hover:bg-blue-600 focus:bg-blue-600 rounded-md",
+        selected: "bg-blue-500 text-white hover:bg-blue-600 focus:bg-blue-600 rounded-md",
 
         today: "bg-alpha/10 text-gray-950 rounded-md",
         outside:
@@ -64,19 +57,13 @@ function Calendar({
       components={{
         Chevron: ({ className, orientation, ...props }) => {
           if (orientation === "left") {
-            return (
-              <ChevronLeft className={cn("size-3.5", className)} {...props} />
-            );
+            return <ChevronLeft className={cn("size-3.5", className)} {...props} />;
           }
           if (orientation === "right") {
-            return (
-              <ChevronRight className={cn("size-3.5", className)} {...props} />
-            );
+            return <ChevronRight className={cn("size-3.5", className)} {...props} />;
           }
 
-          return (
-            <ChevronLeft className={cn("size-3.5", className)} {...props} />
-          );
+          return <ChevronLeft className={cn("size-3.5", className)} {...props} />;
         },
       }}
       {...props}

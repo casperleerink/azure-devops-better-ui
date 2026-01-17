@@ -1,12 +1,12 @@
+import { useAtomValue } from "jotai";
+import { LaptopIcon, MoonIcon, SunIcon, SwatchBookIcon } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useState } from "react";
-import { studiopageBackgroundColor } from "../website/studio/react-matters/store";
-import { useAtomValue } from "jotai";
 import { cn } from "~/lib/utils";
-import { LaptopIcon, MoonIcon, SunIcon, SwatchBookIcon } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
-import { dropdownMenuItemVariants } from "./dropdown-menu";
 import { PixelLogo } from "../website/pixel-logo";
+import { studiopageBackgroundColor } from "../website/studio/react-matters/store";
+import { dropdownMenuItemVariants } from "./dropdown-menu";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 
 export const ThemeToggle = ({ className }: { className?: string }) => {
   const backgroundColor = useAtomValue(studiopageBackgroundColor);

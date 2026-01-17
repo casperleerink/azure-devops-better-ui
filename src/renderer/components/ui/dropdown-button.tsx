@@ -1,7 +1,7 @@
-import React from "react";
-import { cva, VariantProps } from "class-variance-authority";
-import { cn } from "~/lib/utils";
+import { cva, type VariantProps } from "class-variance-authority";
 import { ChevronDownIcon } from "lucide-react";
+import React from "react";
+import { cn } from "~/lib/utils";
 
 export const dropdownButtonVariants = cva(
   "inline-flex items-center overflow-hidden justify-center transition-colors duration-100 focus-visible:outline-none disabled:pointer-events-none disabled:cursor-not-allowed",
@@ -39,23 +39,8 @@ interface DropdownButtonProps
   disabled?: boolean;
 }
 
-export const DropdownButton = React.forwardRef<
-  HTMLButtonElement,
-  DropdownButtonProps
->(
-  (
-    {
-      className,
-      variant,
-      chevron = true,
-      size,
-      text,
-      icon,
-      disabled,
-      ...props
-    },
-    ref,
-  ) => {
+export const DropdownButton = React.forwardRef<HTMLButtonElement, DropdownButtonProps>(
+  ({ className, variant, chevron = true, size, text, icon, disabled, ...props }, ref) => {
     return (
       <button
         ref={ref}

@@ -1,8 +1,8 @@
 "use client";
 
-import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
+import * as React from "react";
 
 import { cn } from "~/lib/utils";
 import { Button } from "./button";
@@ -58,13 +58,7 @@ const DialogHeader = ({
 }: React.HTMLAttributes<HTMLDivElement> & {
   hideCloseButton?: boolean;
 }) => (
-  <div
-    className={cn(
-      "flex w-full items-start justify-between gap-8 p-4",
-      className,
-    )}
-    {...props}
-  >
+  <div className={cn("flex w-full items-start justify-between gap-8 p-4", className)} {...props}>
     {children}
     {!hideCloseButton && (
       <DialogPrimitive.Close asChild>
@@ -78,10 +72,7 @@ const DialogHeader = ({
 );
 DialogHeader.displayName = "DialogHeader";
 
-const DialogFooter = ({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) => (
+const DialogFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
       "border-alpha/5 flex flex-col-reverse border-t p-4 sm:flex-row sm:justify-end sm:gap-2",
@@ -96,11 +87,7 @@ const DialogTitle = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Title>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title>
 >(({ className, ...props }, ref) => (
-  <DialogPrimitive.Title
-    ref={ref}
-    className={cn("text-lg font-semibold", className)}
-    {...props}
-  />
+  <DialogPrimitive.Title ref={ref} className={cn("text-lg font-semibold", className)} {...props} />
 ));
 DialogTitle.displayName = DialogPrimitive.Title.displayName;
 

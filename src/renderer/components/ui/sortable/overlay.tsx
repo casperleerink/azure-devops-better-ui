@@ -1,6 +1,6 @@
-import type { PropsWithChildren } from "react";
-import { DragOverlay, defaultDropAnimationSideEffects } from "@dnd-kit/core";
 import type { DropAnimation } from "@dnd-kit/core";
+import { DragOverlay, defaultDropAnimationSideEffects } from "@dnd-kit/core";
+import type { PropsWithChildren } from "react";
 
 const dropAnimationConfig: DropAnimation = {
   sideEffects: defaultDropAnimationSideEffects({
@@ -13,7 +13,5 @@ const dropAnimationConfig: DropAnimation = {
 };
 
 export function SortableOverlay({ children }: PropsWithChildren) {
-  return (
-    <DragOverlay dropAnimation={dropAnimationConfig}>{children}</DragOverlay>
-  );
+  return <DragOverlay dropAnimation={dropAnimationConfig}>{children}</DragOverlay>;
 }

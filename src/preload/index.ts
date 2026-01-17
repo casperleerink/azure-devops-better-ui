@@ -1,12 +1,15 @@
 import { contextBridge, ipcRenderer } from "electron";
 import type {
   AdoConfig,
-  WorkItemListFilters,
-  WorkItemCreatePayload,
-  WorkItemUpdatePatch,
-  WorkItemSummary,
-  WorkItemDetail,
   Identity,
+  Iteration,
+  WorkItemCreatePayload,
+  WorkItemDetail,
+  WorkItemListFilters,
+  WorkItemSummary,
+  WorkItemType,
+  WorkItemTypeState,
+  WorkItemUpdatePatch,
 } from "../shared/types";
 
 const api = {
@@ -34,6 +37,11 @@ const api = {
       ipcRenderer.invoke("ado:workItems:create", payload),
     update: (id: number, patch: WorkItemUpdatePatch): Promise<WorkItemDetail> =>
       ipcRenderer.invoke("ado:workItems:update", id, patch),
+    getTypeStates: (type: WorkItemType): Promise<WorkItemTypeState[]> =>
+      ipcRenderer.invoke("ado:workItems:getTypeStates", type),
+  },
+  iterations: {
+    list: (): Promise<Iteration[]> => ipcRenderer.invoke("ado:iterations:list"),
   },
 };
 

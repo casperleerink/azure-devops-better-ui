@@ -1,10 +1,10 @@
-import { createRootRouteWithContext, createRoute, createRouter } from "@tanstack/react-router";
 import type { QueryClient } from "@tanstack/react-query";
-import { RootLayout } from "./root";
-import { WorkItemsPage } from "./work-items";
-import { WorkItemDetailPage } from "./work-item-detail";
+import { createRootRouteWithContext, createRoute } from "@tanstack/react-router";
 import { CreateWorkItemPage } from "./create";
+import { RootLayout } from "./root";
 import { SettingsPage } from "./settings";
+import { WorkItemDetailPage } from "./work-item-detail";
+import { WorkItemsPage } from "./work-items";
 
 interface RouterContext {
   queryClient: QueryClient;

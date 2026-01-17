@@ -1,5 +1,5 @@
-import * as React from "react";
 import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog";
+import * as React from "react";
 import { buttonVariants } from "./button";
 
 interface AlertOptions {
@@ -26,7 +26,9 @@ const listeners = new Set<() => void>();
 
 // Function to notify all listeners
 const notifyListeners = () => {
-  listeners.forEach((listener) => listener());
+  listeners.forEach((listener) => {
+    listener();
+  });
 };
 
 // Function to trigger an alert

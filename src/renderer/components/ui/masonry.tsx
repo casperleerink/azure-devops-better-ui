@@ -1,5 +1,5 @@
+import { type ReactNode, useCallback, useEffect, useRef } from "react";
 import { cn } from "~/lib/utils";
-import { ReactNode, useCallback, useEffect, useRef } from "react";
 
 interface Props {
   children?: ReactNode[];
@@ -19,16 +19,14 @@ function MasonryGroup({ children, className }: Props) {
       const item = items[i];
       const rowHeight = parseInt(
         window.getComputedStyle(grid).getPropertyValue("grid-auto-rows"),
+        10,
       );
-      const rowGap = parseInt(
-        window.getComputedStyle(grid).getPropertyValue("grid-row-gap"),
-      );
+      const rowGap = parseInt(window.getComputedStyle(grid).getPropertyValue("grid-row-gap"), 10);
       const rowSpan = Math.ceil(
-        (item.firstChild.getBoundingClientRect().height + rowGap) /
-          (rowHeight + rowGap),
+        (item.firstChild.getBoundingClientRect().height + rowGap) / (rowHeight + rowGap),
       );
       console.log(rowSpan);
-      item.style.gridRowEnd = "span " + rowSpan;
+      item.style.gridRowEnd = `span ${rowSpan}`;
     }
   }, []);
   useEffect(() => {
@@ -36,7 +34,7 @@ function MasonryGroup({ children, className }: Props) {
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [handleResize, children]);
+  }, [handleResize]);
 
   return (
     <div

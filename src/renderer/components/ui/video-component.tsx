@@ -1,6 +1,6 @@
+import { env } from "~/lib/env/env.client";
 import { cn } from "~/lib/utils";
 import { Video } from "../website/media-components";
-import { env } from "~/lib/env/env.client";
 
 interface VideoComponentProps {
   value: {
@@ -47,19 +47,14 @@ export const VideoComponent = ({ value }: VideoComponentProps) => {
           width={width}
           height={height}
           controls={controls}
-          className={cn(
-            "absolute inset-0 h-full w-full object-cover",
-            className,
-          )}
+          className={cn("absolute inset-0 h-full w-full object-cover", className)}
         />
       </div>
     );
   }
 
   if (sourceType === "url" && url) {
-    const embedUrl = url.includes("youtube.com/watch")
-      ? url.replace("watch?v=", "embed/")
-      : url;
+    const embedUrl = url.includes("youtube.com/watch") ? url.replace("watch?v=", "embed/") : url;
 
     return (
       <div className={containerClassName} style={containerStyle}>
@@ -68,10 +63,7 @@ export const VideoComponent = ({ value }: VideoComponentProps) => {
           width={width}
           height={height}
           controls={controls}
-          className={cn(
-            "absolute inset-0 h-full w-full object-cover",
-            className,
-          )}
+          className={cn("absolute inset-0 h-full w-full object-cover", className)}
         />
       </div>
     );

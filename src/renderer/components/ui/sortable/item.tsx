@@ -1,12 +1,9 @@
-import { createContext, useContext, useMemo } from "react";
-import type { CSSProperties, PropsWithChildren } from "react";
-import type {
-  DraggableSyntheticListeners,
-  UniqueIdentifier,
-} from "@dnd-kit/core";
+import type { DraggableSyntheticListeners, UniqueIdentifier } from "@dnd-kit/core";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVerticalIcon } from "lucide-react";
+import type { CSSProperties, PropsWithChildren } from "react";
+import { createContext, useContext, useMemo } from "react";
 
 interface Props {
   id: UniqueIdentifier;
@@ -26,11 +23,7 @@ const SortableItemContext = createContext<Context>({
   ref() {},
 });
 
-export function SortableItem({
-  children,
-  id,
-  className,
-}: PropsWithChildren<Props>) {
+export function SortableItem({ children, id, className }: PropsWithChildren<Props>) {
   const {
     attributes,
     isDragging,
@@ -63,23 +56,11 @@ export function SortableItem({
   );
 }
 
-export function DragHandle({
-  className,
-  disabled,
-}: {
-  className?: string;
-  disabled?: boolean;
-}) {
+export function DragHandle({ className, disabled }: { className?: string; disabled?: boolean }) {
   const { attributes, listeners, ref } = useContext(SortableItemContext);
 
   return (
-    <button
-      className={className}
-      {...attributes}
-      {...listeners}
-      ref={ref}
-      disabled={disabled}
-    >
+    <button className={className} {...attributes} {...listeners} ref={ref} disabled={disabled}>
       {!disabled && <GripVerticalIcon className="size-3.5" />}
     </button>
   );

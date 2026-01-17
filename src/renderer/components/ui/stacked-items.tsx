@@ -3,11 +3,7 @@ import { motion } from "motion/react";
 import { cn } from "~/lib/utils";
 
 export const StackContainer = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <div className="flex h-full w-full flex-col justify-center -space-y-8">
-      {children}
-    </div>
-  );
+  return <div className="flex h-full w-full flex-col justify-center -space-y-8">{children}</div>;
 };
 
 const fadedBorder = ["border-alpha/10", "border-alpha/5", "border-alpha/3"];

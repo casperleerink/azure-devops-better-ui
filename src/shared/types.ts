@@ -60,6 +60,20 @@ export type Identity = {
   imageUrl?: string;
 };
 
+export type WorkItemTypeState = {
+  name: string;
+  color: string;
+  category: string;
+};
+
+export type Iteration = {
+  id: string;
+  name: string;
+  path: string;
+  startDate?: string;
+  finishDate?: string;
+};
+
 // IPC Channel types
 export type IpcChannels = {
   // Config
@@ -81,4 +95,8 @@ export type IpcChannels = {
   "ado:workItems:get": (id: number) => Promise<WorkItemDetail>;
   "ado:workItems:create": (payload: WorkItemCreatePayload) => Promise<WorkItemDetail>;
   "ado:workItems:update": (id: number, patch: WorkItemUpdatePatch) => Promise<WorkItemDetail>;
+  "ado:workItems:getTypeStates": (type: WorkItemType) => Promise<WorkItemTypeState[]>;
+
+  // Iterations
+  "ado:iterations:list": () => Promise<Iteration[]>;
 };

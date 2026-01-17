@@ -1,6 +1,6 @@
 import * as React from "react";
-import { Avatar } from "./avatar";
 import { cn } from "~/lib/utils";
+import { Avatar } from "./avatar";
 
 interface AvatarInputProps {
   image?: string | null;

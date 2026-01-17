@@ -1,5 +1,5 @@
-import { cn } from "~/lib/utils";
 import { motion } from "motion/react";
+import { cn } from "~/lib/utils";
 
 interface LoaderProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
@@ -20,20 +20,13 @@ const sizeVariantsGap = {
 
 export function Loader({ className, size = "md", ...props }: LoaderProps) {
   return (
-    <div
-      className={cn("flex items-center", sizeVariantsGap[size], className)}
-      {...props}
-    >
+    <div className={cn("flex items-center", sizeVariantsGap[size], className)} {...props}>
       {[...Array(3)].map((_, i) => (
         <motion.div
           key={i}
           className={cn(sizeVariants[size])}
           animate={{
-            backgroundColor: [
-              "var(--color-alpha)",
-              "var(--color-gray-950)",
-              "var(--color-alpha)",
-            ],
+            backgroundColor: ["var(--color-alpha)", "var(--color-gray-950)", "var(--color-alpha)"],
             opacity: [0.05, 1, 0.05, 0.05],
           }}
           transition={{

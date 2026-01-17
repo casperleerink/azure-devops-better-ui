@@ -1,5 +1,5 @@
-import * as React from "react";
 import * as SliderPrimitive from "@radix-ui/react-slider";
+import * as React from "react";
 
 import { cn } from "~/lib/utils";
 
@@ -13,10 +13,7 @@ interface SliderProps
   onValueCommit: (value: number) => void;
 }
 
-const Slider = React.forwardRef<
-  React.ElementRef<typeof SliderPrimitive.Root>,
-  SliderProps
->(
+const Slider = React.forwardRef<React.ElementRef<typeof SliderPrimitive.Root>, SliderProps>(
   (
     {
       className,
@@ -33,18 +30,14 @@ const Slider = React.forwardRef<
   ) => {
     const [steps, stepsArray, amountActiveSteps] = React.useMemo(() => {
       const steps = Math.floor((max - min) / step);
-      const stepsArray = Array.from({ length: steps }, (_, index) => index).map(
-        (idx) => {
-          const isActive = value ? value > min + idx * step : false;
-          return {
-            isActive,
-            value: min + idx * step,
-          };
-        },
-      );
-      const amountActiveSteps = stepsArray.filter(
-        (step) => step.isActive,
-      ).length;
+      const stepsArray = Array.from({ length: steps }, (_, index) => index).map((idx) => {
+        const isActive = value ? value > min + idx * step : false;
+        return {
+          isActive,
+          value: min + idx * step,
+        };
+      });
+      const amountActiveSteps = stepsArray.filter((step) => step.isActive).length;
       return [steps, stepsArray, amountActiveSteps];
     }, [max, min, step, value]);
 
@@ -79,7 +72,7 @@ const Slider = React.forwardRef<
               gridTemplateColumns: `repeat(${steps}, minmax(0, 1fr))`,
             }}
           >
-            {stepsArray.map((step, index) => (
+            {stepsArray.map((_step, index) => (
               <div
                 key={index}
                 className="relative h-1 w-full"
@@ -95,9 +88,7 @@ const Slider = React.forwardRef<
                 <div
                   className={cn(
                     "pointer-events-none relative h-full w-full",
-                    hoveredIdx !== null && index <= hoveredIdx
-                      ? "bg-orange-500"
-                      : "bg-alpha/10",
+                    hoveredIdx !== null && index <= hoveredIdx ? "bg-orange-500" : "bg-alpha/10",
                   )}
                 />
               </div>

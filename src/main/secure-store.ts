@@ -1,6 +1,6 @@
-import { safeStorage, app } from "electron";
-import fs from "fs";
-import path from "path";
+import fs from "node:fs";
+import path from "node:path";
+import { app, safeStorage } from "electron";
 
 const PAT_FILE = "pat.enc";
 

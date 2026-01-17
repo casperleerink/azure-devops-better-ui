@@ -1,6 +1,6 @@
-import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
+import * as React from "react";
 
 import { cn } from "~/lib/utils";
 
@@ -21,20 +21,16 @@ const buttonVariants = cva(
           "bg-transparent border border-alpha/10 text-gray-950 hover:bg-alpha/10 disabled:bg-alpha/[0.12] disabled:opacity-40",
         "outline-secondary":
           "bg-transparent border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white disabled:bg-alpha/[0.12] disabled:opacity-40",
-        ghost:
-          "bg-transparent text-gray-950 hover:bg-alpha/5 disabled:opacity-40",
-        "ghost-secondary":
-          "bg-transparent text-blue-500 hover:bg-blue-50 disabled:opacity-40",
+        ghost: "bg-transparent text-gray-950 hover:bg-alpha/5 disabled:opacity-40",
+        "ghost-secondary": "bg-transparent text-blue-500 hover:bg-blue-50 disabled:opacity-40",
         "primary-disabled": "bg-alpha/[0.12] text-gray-100 opacity-40",
         "secondary-disabled": "bg-alpha/[0.12] text-white opacity-40",
         "subtle-disabled": "bg-alpha/[0.12] text-gray-950 opacity-40",
         "subtle-secondary-disabled": "bg-alpha/[0.12] text-blue-500 opacity-40",
-        "outline-disabled":
-          "bg-alpha/[0.12] text-gray-950 opacity-40 border border-alpha/10",
+        "outline-disabled": "bg-alpha/[0.12] text-gray-950 opacity-40 border border-alpha/10",
         "outline-secondary-disabled":
           "bg-transparent text-blue-500 opacity-40 border border-blue-500",
-        "ghost-disabled":
-          "bg-transparent text-gray-950 opacity-40 hover:bg-alpha/5",
+        "ghost-disabled": "bg-transparent text-gray-950 opacity-40 hover:bg-alpha/5",
         "ghost-secondary-disabled": "bg-transparent text-blue-500 opacity-40",
         purple:
           "bg-purple-500 text-gray-50 hover:bg-purple-600 disabled:bg-alpha/12 disabled:opacity-40 disabled:text-gray-100",
@@ -46,8 +42,7 @@ const buttonVariants = cva(
       size: {
         xs: "h-5 px-1 gap-0.5 text-xs rounded [&_svg]:size-3 [&_span]:px-0.5",
         sm: "h-6 px-[0.3125rem] gap-0.5 text-sm rounded-md [&_svg]:size-3.5 [&_span]:px-0.5",
-        default:
-          "h-8 px-2 gap-1 text-sm rounded-lg [&_svg]:size-4 [&_span]:px-1",
+        default: "h-8 px-2 gap-1 text-sm rounded-lg [&_svg]:size-4 [&_span]:px-1",
         lg: "h-10 rounded-[10px] px-3 gap-2 [&_svg]:size-4 [&_span]:px-1",
         "icon-xs": "size-5 text-xs rounded [&_svg]:size-3",
         "icon-sm": "size-6 text-xs rounded [&_svg]:size-3.5",
@@ -72,11 +67,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
     return (
-      <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
-        ref={ref}
-        {...props}
-      />
+      <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />
     );
   },
 );

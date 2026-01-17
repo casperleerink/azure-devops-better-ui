@@ -1,6 +1,6 @@
-import * as React from "react";
 import { Command as CommandPrimitive } from "cmdk";
 import { Search } from "lucide-react";
+import * as React from "react";
 
 import { cn } from "~/lib/utils";
 
@@ -8,11 +8,7 @@ const Command = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive>
 >(({ className, ...props }, ref) => (
-  <CommandPrimitive
-    ref={ref}
-    className={cn("flex h-full w-full flex-col", className)}
-    {...props}
-  />
+  <CommandPrimitive ref={ref} className={cn("flex h-full w-full flex-col", className)} {...props} />
 ));
 Command.displayName = CommandPrimitive.displayName;
 
@@ -32,10 +28,7 @@ const CommandInput = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Input>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input>
 >(({ className, ...props }, ref) => (
-  <div
-    className="border-alpha/5 flex items-center border-b p-2"
-    cmdk-input-wrapper=""
-  >
+  <div className="border-alpha/5 flex items-center border-b p-2" cmdk-input-wrapper="">
     <div className="bg-alpha/3 border-alpha/3 flex w-full items-center gap-1 rounded-lg border p-1.5 focus-within:border-blue-500/70 focus-within:ring-4 focus-within:ring-blue-500/10">
       <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
       <CommandPrimitive.Input
@@ -126,15 +119,9 @@ const CommandItem = React.forwardRef<
 
 CommandItem.displayName = CommandPrimitive.Item.displayName;
 
-const CommandShortcut = ({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLSpanElement>) => {
+const CommandShortcut = ({ className, ...props }: React.HTMLAttributes<HTMLSpanElement>) => {
   return (
-    <span
-      className={cn("ml-auto text-xs tracking-widest text-gray-500", className)}
-      {...props}
-    />
+    <span className={cn("ml-auto text-xs tracking-widest text-gray-500", className)} {...props} />
   );
 };
 CommandShortcut.displayName = "CommandShortcut";

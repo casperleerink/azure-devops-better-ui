@@ -1,20 +1,11 @@
-import React from "react";
-import type { ReactNode } from "react";
-import {
-  DndContext,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
 import type { UniqueIdentifier } from "@dnd-kit/core";
-import {
-  SortableContext,
-  arrayMove,
-  sortableKeyboardCoordinates,
-} from "@dnd-kit/sortable";
+import { DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
+import { arrayMove, SortableContext, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
+import type { ReactNode } from "react";
+import React from "react";
 
 import { DragHandle, SortableItem } from "./item";
+
 // import { SortableOverlay } from "./overlay";
 
 interface BaseItem {

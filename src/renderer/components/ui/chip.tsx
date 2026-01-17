@@ -1,10 +1,10 @@
 "use client";
 
-import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
+import { X } from "lucide-react";
+import * as React from "react";
 import { cn } from "~/lib/utils";
 import { Avatar } from "./avatar";
-import { X } from "lucide-react";
 
 const chipVariants = cva(
   "group/chip inline-flex items-center justify-center gap-1 whitespace-nowrap font-medium transition-colors",
@@ -92,11 +92,7 @@ const Chip = React.forwardRef<HTMLDivElement, ChipProps>(
     ref,
   ) => {
     return (
-      <div
-        ref={ref}
-        className={cn(chipVariants({ variant, size, rounded, className }))}
-        {...props}
-      >
+      <div ref={ref} className={cn(chipVariants({ variant, size, rounded, className }))} {...props}>
         {(image || fallback) && (
           <Avatar
             image={image}
@@ -110,10 +106,7 @@ const Chip = React.forwardRef<HTMLDivElement, ChipProps>(
 
         <button
           onClick={onRemove}
-          className={cn(
-            closeButtonVariants({ variant, size }),
-            rounded ? "rounded-full" : "",
-          )}
+          className={cn(closeButtonVariants({ variant, size }), rounded ? "rounded-full" : "")}
         >
           <X className="size-3.5" />
         </button>

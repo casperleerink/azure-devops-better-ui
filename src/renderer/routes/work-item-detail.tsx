@@ -1,21 +1,37 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useParams, Link } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
-import type { WorkItemUpdatePatch } from "../../shared/types";
+import type { WorkItemUpdatePatch } from "@shared/types";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Link, useParams } from "@tanstack/react-router";
+import { ArrowLeft } from "lucide-react";
+import { useEffect, useState } from "react";
+import { BareInput } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
+import { DescriptionSection, DetailHeader, DetailsGrid } from "@/components/work-item-detail";
 
 export function WorkItemDetailPage() {
   const { id } = useParams({ from: "/work-items/$id" });
   const queryClient = useQueryClient();
   const workItemId = parseInt(id, 10);
 
-  const { data: workItem, isLoading, error } = useQuery({
+  const {
+    data: workItem,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["workItem", workItemId],
     queryFn: () => window.ado.workItems.get(workItemId),
+  });
+
+  const { data: states = [] } = useQuery({
+    queryKey: ["workItemTypeStates", workItem?.type],
+    queryFn: () => window.ado.workItems.getTypeStates(workItem!.type),
+    enabled: !!workItem?.type,
+    staleTime: 1000 * 60 * 60,
   });
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [state, setState] = useState("");
+  const [isEditingDescription, setIsEditingDescription] = useState(false);
 
   useEffect(() => {
     if (workItem) {
@@ -26,8 +42,7 @@ export function WorkItemDetailPage() {
   }, [workItem]);
 
   const updateMutation = useMutation({
-    mutationFn: (patch: WorkItemUpdatePatch) =>
-      window.ado.workItems.update(workItemId, patch),
+    mutationFn: (patch: WorkItemUpdatePatch) => window.ado.workItems.update(workItemId, patch),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["workItem", workItemId] });
       queryClient.invalidateQueries({ queryKey: ["workItems"] });
@@ -45,17 +60,48 @@ export function WorkItemDetailPage() {
     }
   };
 
+  const hasChanges =
+    workItem &&
+    (title !== workItem.title ||
+      description !== (workItem.descriptionHtml || "") ||
+      state !== workItem.state);
+
   if (isLoading) {
     return (
-      <div className="p-6 text-muted-foreground">Loading work item...</div>
+      <div className="h-full bg-gray-50">
+        <div className="border-b border-alpha/5 bg-gray-50 px-6 py-4">
+          <Skeleton className="h-6 w-32" />
+        </div>
+        <div className="p-6">
+          <div className="max-w-4xl">
+            <Skeleton className="h-8 w-3/4 mb-6" />
+            <Skeleton className="h-32 w-full mb-6" />
+            <Skeleton className="h-24 w-full" />
+          </div>
+        </div>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <div className="p-6">
-        <div className="rounded border border-destructive bg-destructive/10 p-4 text-destructive">
-          {error instanceof Error ? error.message : "Failed to load work item"}
+      <div className="h-full bg-gray-50">
+        <div className="border-b border-alpha/5 bg-gray-50 px-6 py-4">
+          <Link
+            to="/work-items"
+            className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-alpha transition-colors"
+          >
+            <ArrowLeft className="size-4" />
+            Back to Work Items
+          </Link>
+        </div>
+        <div className="p-8">
+          <div className="rounded-xl border border-red-500/20 bg-red-50 p-6">
+            <p className="text-red-600 font-medium">Error loading work item</p>
+            <p className="text-sm text-gray-600 mt-1">
+              {error instanceof Error ? error.message : "Failed to load work item"}
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -63,89 +109,54 @@ export function WorkItemDetailPage() {
 
   if (!workItem) {
     return (
-      <div className="p-6 text-muted-foreground">Work item not found</div>
+      <div className="h-full bg-gray-50">
+        <div className="border-b border-alpha/5 bg-gray-50 px-6 py-4">
+          <Link
+            to="/work-items"
+            className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-alpha transition-colors"
+          >
+            <ArrowLeft className="size-4" />
+            Back to Work Items
+          </Link>
+        </div>
+        <div className="p-8">
+          <p className="text-gray-600">Work item not found</p>
+        </div>
+      </div>
     );
   }
 
   return (
-    <div className="p-6">
-      <div className="mb-4">
-        <Link to="/work-items" className="text-sm text-muted-foreground hover:text-foreground">
-          &larr; Back to Work Items
-        </Link>
-      </div>
+    <div className="h-full bg-gray-50 overflow-auto">
+      <DetailHeader
+        workItemId={workItem.id}
+        type={workItem.type}
+        hasChanges={!!hasChanges}
+        isSaving={updateMutation.isPending}
+        saveSuccess={updateMutation.isSuccess}
+        saveError={updateMutation.isError ? (updateMutation.error as Error) : null}
+        onSave={handleSave}
+      />
 
-      <div className="mb-6 flex items-center gap-4">
-        <span className="rounded bg-muted px-2 py-1 text-sm font-medium">
-          {workItem.type}
-        </span>
-        <span className="text-muted-foreground">#{workItem.id}</span>
-      </div>
-
-      <div className="space-y-4">
-        <div>
-          <label className="mb-1 block text-sm font-medium">Title</label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="w-full rounded border border-input bg-background px-3 py-2"
-          />
-        </div>
-
-        <div>
-          <label className="mb-1 block text-sm font-medium">State</label>
-          <input
-            type="text"
-            value={state}
-            onChange={(e) => setState(e.target.value)}
-            className="w-full max-w-xs rounded border border-input bg-background px-3 py-2"
-          />
-        </div>
-
-        <div>
-          <label className="mb-1 block text-sm font-medium">Description</label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={6}
-            className="w-full rounded border border-input bg-background px-3 py-2"
-          />
-        </div>
-
-        <div className="flex items-center gap-4">
-          <div>
-            <span className="text-sm text-muted-foreground">Assigned To: </span>
-            <span>{workItem.assignedTo?.displayName || "Unassigned"}</span>
+      <div className="p-8">
+        <div className="max-w-5xl mx-auto">
+          <div className="mb-8">
+            <BareInput
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="text-3xl font-semibold text-alpha w-full"
+              placeholder="Enter title..."
+            />
           </div>
-          <div>
-            <span className="text-sm text-muted-foreground">Area: </span>
-            <span>{workItem.areaPath || "-"}</span>
-          </div>
-          <div>
-            <span className="text-sm text-muted-foreground">Iteration: </span>
-            <span>{workItem.iterationPath || "-"}</span>
-          </div>
-        </div>
 
-        <div className="pt-4">
-          <button
-            onClick={handleSave}
-            disabled={updateMutation.isPending}
-            className="rounded bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-          >
-            {updateMutation.isPending ? "Saving..." : "Save Changes"}
-          </button>
-          {updateMutation.isError && (
-            <span className="ml-4 text-sm text-destructive">
-              {updateMutation.error instanceof Error
-                ? updateMutation.error.message
-                : "Failed to save"}
-            </span>
-          )}
-          {updateMutation.isSuccess && (
-            <span className="ml-4 text-sm text-green-600">Saved!</span>
-          )}
+          <DetailsGrid workItem={workItem} state={state} states={states} onStateChange={setState} />
+
+          <DescriptionSection
+            description={description}
+            isEditing={isEditingDescription}
+            onDescriptionChange={setDescription}
+            onToggleEdit={() => setIsEditingDescription(!isEditingDescription)}
+          />
         </div>
       </div>
     </div>

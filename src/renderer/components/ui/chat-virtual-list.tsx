@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { VList, VListHandle } from "virtua";
+import { VList, type VListHandle } from "virtua";
 
 type DefaultKey = { id: string };
 
@@ -39,7 +39,7 @@ export function ChatVirtualList<T extends DefaultKey>({
   const shiftOnceRef = useRef(false);
   useLayoutEffect(() => {
     shiftOnceRef.current = false;
-  }, [items]);
+  }, []);
 
   // Track whether we should auto-stick to bottom on append
   const shouldStickToBottom = useRef(true);
@@ -64,7 +64,7 @@ export function ChatVirtualList<T extends DefaultKey>({
       loadMore?.();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nearTop]);
+  }, [nearTop, loadMore]);
 
   return (
     <VList
@@ -78,8 +78,7 @@ export function ChatVirtualList<T extends DefaultKey>({
 
         // Update bottom stickiness based on current position
         const atBottom =
-          offset - handle.scrollSize + handle.viewportSize >=
-          -Math.abs(bottomThresholdPx);
+          offset - handle.scrollSize + handle.viewportSize >= -Math.abs(bottomThresholdPx);
         shouldStickToBottom.current = atBottom;
 
         // the !atBottom is to avoid the shift on places where the list is near-empty and offset is so little its treated as at the top

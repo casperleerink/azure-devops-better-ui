@@ -1,21 +1,24 @@
 import { ipcMain } from "electron";
-import { getConfig, setConfig } from "./store";
-import { setPat, clearPat, hasPat } from "./secure-store";
-import {
-  testConnection,
-  listWorkItems,
-  getWorkItem,
-  createWorkItem,
-  updateWorkItem,
-  searchIdentities,
-  listProjectUsers,
-} from "./ado-client";
 import type {
   AdoConfig,
-  WorkItemListFilters,
   WorkItemCreatePayload,
+  WorkItemListFilters,
+  WorkItemType,
   WorkItemUpdatePatch,
 } from "../shared/types";
+import {
+  createWorkItem,
+  getWorkItem,
+  getWorkItemTypeStates,
+  listIterations,
+  listProjectUsers,
+  listWorkItems,
+  searchIdentities,
+  testConnection,
+  updateWorkItem,
+} from "./ado-client";
+import { clearPat, hasPat, setPat } from "./secure-store";
+import { getConfig, setConfig } from "./store";
 
 export function registerIpcHandlers() {
   // Config handlers
@@ -68,5 +71,14 @@ export function registerIpcHandlers() {
 
   ipcMain.handle("ado:workItems:update", async (_, id: number, patch: WorkItemUpdatePatch) => {
     return updateWorkItem(id, patch);
+  });
+
+  ipcMain.handle("ado:workItems:getTypeStates", async (_, type: WorkItemType) => {
+    return getWorkItemTypeStates(type);
+  });
+
+  // Iteration handlers
+  ipcMain.handle("ado:iterations:list", async () => {
+    return listIterations();
   });
 }

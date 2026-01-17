@@ -1,14 +1,16 @@
-import { getConfig } from "./store";
-import { getPat } from "./secure-store";
 import type {
-  WorkItemSummary,
+  Identity,
+  Iteration,
+  WorkItemCreatePayload,
   WorkItemDetail,
   WorkItemListFilters,
-  WorkItemCreatePayload,
-  WorkItemUpdatePatch,
-  Identity,
+  WorkItemSummary,
   WorkItemType,
+  WorkItemTypeState,
+  WorkItemUpdatePatch,
 } from "../shared/types";
+import { getPat } from "./secure-store";
+import { getConfig } from "./store";
 
 function getAuthHeader(): string {
   const pat = getPat();
@@ -169,7 +171,7 @@ function mapWorkItemDetail(item: any): WorkItemDetail {
   let parentId: number | undefined;
   if (item.relations) {
     const parentRelation = item.relations.find(
-      (r: any) => r.rel === "System.LinkTypes.Hierarchy-Reverse"
+      (r: any) => r.rel === "System.LinkTypes.Hierarchy-Reverse",
     );
     if (parentRelation) {
       const urlParts = parentRelation.url.split("/");
@@ -189,13 +191,10 @@ export async function listWorkItems(filters: WorkItemListFilters): Promise<WorkI
   const query = buildWiqlQuery(filters);
 
   // Run WIQL query to get IDs
-  const wiqlResult = await adoFetch<{ workItems: { id: number }[] }>(
-    "wit/wiql?api-version=7.1",
-    {
-      method: "POST",
-      body: JSON.stringify({ query }),
-    }
-  );
+  const wiqlResult = await adoFetch<{ workItems: { id: number }[] }>("wit/wiql?api-version=7.1", {
+    method: "POST",
+    body: JSON.stringify({ query }),
+  });
 
   if (!wiqlResult.workItems || wiqlResult.workItems.length === 0) {
     return [];
@@ -221,7 +220,7 @@ export async function listWorkItems(filters: WorkItemListFilters): Promise<WorkI
     ].join(",");
 
     const batchResult = await adoFetch<{ value: any[] }>(
-      `wit/workitems?ids=${idsParam}&fields=${fields}&api-version=7.1`
+      `wit/workitems?ids=${idsParam}&fields=${fields}&api-version=7.1`,
     );
 
     results.push(...batchResult.value.map(mapWorkItem));
@@ -231,15 +230,11 @@ export async function listWorkItems(filters: WorkItemListFilters): Promise<WorkI
 }
 
 export async function getWorkItem(id: number): Promise<WorkItemDetail> {
-  const result = await adoFetch<any>(
-    `wit/workitems/${id}?$expand=relations&api-version=7.1`
-  );
+  const result = await adoFetch<any>(`wit/workitems/${id}?$expand=relations&api-version=7.1`);
   return mapWorkItemDetail(result);
 }
 
-export async function createWorkItem(
-  payload: WorkItemCreatePayload
-): Promise<WorkItemDetail> {
+export async function createWorkItem(payload: WorkItemCreatePayload): Promise<WorkItemDetail> {
   const patchDoc: { op: string; path: string; value: any }[] = [
     { op: "add", path: "/fields/System.Title", value: payload.title },
   ];
@@ -288,23 +283,20 @@ export async function createWorkItem(
   }
 
   const typeEncoded = encodeURIComponent(payload.type);
-  const result = await adoFetch<any>(
-    `wit/workitems/$${typeEncoded}?api-version=7.1`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json-patch+json",
-      },
-      body: JSON.stringify(patchDoc),
-    }
-  );
+  const result = await adoFetch<any>(`wit/workitems/$${typeEncoded}?api-version=7.1`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json-patch+json",
+    },
+    body: JSON.stringify(patchDoc),
+  });
 
   return mapWorkItemDetail(result);
 }
 
 export async function updateWorkItem(
   id: number,
-  patch: WorkItemUpdatePatch
+  patch: WorkItemUpdatePatch,
 ): Promise<WorkItemDetail> {
   const patchDoc: { op: string; path: string; value: any }[] = [];
 
@@ -378,7 +370,7 @@ export async function searchIdentities(query: string): Promise<Identity[]> {
         operationScopes: ["ims", "source"],
         options: { MinResults: 5, MaxResults: 20 },
       }),
-    }
+    },
   );
 
   return result.results.flatMap((r: any) =>
@@ -387,42 +379,96 @@ export async function searchIdentities(query: string): Promise<Identity[]> {
       displayName: i.displayName,
       uniqueName: i.signInAddress || i.samAccountName,
       imageUrl: i.image,
-    }))
+    })),
   );
 }
 
 export async function listProjectUsers(): Promise<Identity[]> {
+  // Get unique assignees from recent work items - this works with basic work item permissions
+  const query = `SELECT [System.Id] FROM WorkItems WHERE [System.AssignedTo] <> '' ORDER BY [System.ChangedDate] DESC`;
+
+  const wiqlResult = await adoFetch<{ workItems: { id: number }[] }>(
+    "wit/wiql?$top=500&api-version=7.1",
+    {
+      method: "POST",
+      body: JSON.stringify({ query }),
+    },
+  );
+
+  if (!wiqlResult.workItems || wiqlResult.workItems.length === 0) {
+    return [];
+  }
+
+  // Fetch up to 200 work items to extract unique users
+  const ids = wiqlResult.workItems.slice(0, 200).map((w) => w.id);
+  const idsParam = ids.join(",");
+
+  const result = await adoFetch<{ value: any[] }>(
+    `wit/workitems?ids=${idsParam}&fields=System.AssignedTo&api-version=7.1`,
+  );
+
+  const uniqueUsers: Map<string, Identity> = new Map();
+
+  for (const item of result.value) {
+    const assignedTo = item.fields["System.AssignedTo"];
+    if (assignedTo && !uniqueUsers.has(assignedTo.id)) {
+      uniqueUsers.set(assignedTo.id, {
+        id: assignedTo.id,
+        displayName: assignedTo.displayName,
+        uniqueName: assignedTo.uniqueName,
+        imageUrl: assignedTo.imageUrl,
+      });
+    }
+  }
+
+  return Array.from(uniqueUsers.values()).sort((a, b) =>
+    a.displayName.localeCompare(b.displayName),
+  );
+}
+
+export async function getWorkItemTypeStates(type: WorkItemType): Promise<WorkItemTypeState[]> {
+  const typeEncoded = encodeURIComponent(type);
+  const result = await adoFetch<{ value: WorkItemTypeState[] }>(
+    `wit/workitemtypes/${typeEncoded}/states?api-version=7.1`,
+  );
+  return result.value;
+}
+
+export async function listIterations(): Promise<Iteration[]> {
   const config = getConfig();
   if (!config) {
     throw new Error("Azure DevOps not configured");
   }
 
-  // Get team members - this is a common approach
-  const result = await adoFetch<{ value: any[] }>(
-    `teams?api-version=7.1`
-  );
+  const result = await adoFetch<{
+    value: {
+      id: string;
+      name: string;
+      path: string;
+      attributes?: {
+        startDate?: string;
+        finishDate?: string;
+      };
+    }[];
+  }>(`work/teamsettings/iterations?api-version=7.1`);
 
-  const allMembers: Map<string, Identity> = new Map();
+  // Filter to iterations that ended within the last 3 months, or are current/future
+  const threeMonthsAgo = new Date();
+  threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
 
-  for (const team of result.value.slice(0, 5)) {
-    try {
-      const members = await adoFetch<{ value: any[] }>(
-        `teams/${team.id}/members?api-version=7.1`
-      );
-      for (const member of members.value) {
-        if (member.identity && !allMembers.has(member.identity.id)) {
-          allMembers.set(member.identity.id, {
-            id: member.identity.id,
-            displayName: member.identity.displayName,
-            uniqueName: member.identity.uniqueName,
-            imageUrl: member.identity.imageUrl,
-          });
-        }
+  return result.value
+    .filter((iteration) => {
+      if (!iteration.attributes?.finishDate) {
+        return true;
       }
-    } catch {
-      // Skip teams we can't access
-    }
-  }
-
-  return Array.from(allMembers.values());
+      const finishDate = new Date(iteration.attributes.finishDate);
+      return finishDate >= threeMonthsAgo;
+    })
+    .map((iteration) => ({
+      id: iteration.id,
+      name: iteration.name,
+      path: iteration.path,
+      startDate: iteration.attributes?.startDate,
+      finishDate: iteration.attributes?.finishDate,
+    }));
 }

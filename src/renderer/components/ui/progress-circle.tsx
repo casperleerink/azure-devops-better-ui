@@ -4,11 +4,7 @@ interface Props {
   variant?: "default";
 }
 
-export const ProgressCircle = ({
-  percentage,
-  size = 16,
-  variant = "default",
-}: Props) => {
+export const ProgressCircle = ({ percentage, size = 16, variant = "default" }: Props) => {
   const strokeWidth = size * 0.1875;
   const radius = size / 2 - strokeWidth;
   const circumference = radius * 2 * Math.PI;

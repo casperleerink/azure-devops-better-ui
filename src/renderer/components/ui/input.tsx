@@ -31,7 +31,7 @@ const InputWithIcon = React.forwardRef<
       <input
         type={type}
         className={cn(
-          "border-alpha/10 focus-visible:border-alpha/20 flex h-8 w-full rounded-md border bg-transparent px-3 text-base shadow-xs transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+          "border-alpha/10 focus-visible:border-alpha/20 flex h-8 w-full rounded-md border bg-transparent px-3 text-base text-gray-950 placeholder:text-gray-500 shadow-xs transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
           iconLeft ? "pl-7" : "",
           iconRight ? "pr-7" : "",
           className,
@@ -54,22 +54,21 @@ const InputWithIcon = React.forwardRef<
 });
 InputWithIcon.displayName = "InputWithIcon";
 
-const BareInput = React.forwardRef<
-  HTMLInputElement,
-  React.ComponentProps<"input">
->(({ className, type, ...props }, ref) => {
-  return (
-    <input
-      type={type}
-      className={cn(
-        "w-full flex-1 border-none text-gray-950 focus-visible:outline-none disabled:cursor-default",
-        className,
-      )}
-      ref={ref}
-      {...props}
-    />
-  );
-});
+const BareInput = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
+  ({ className, type, ...props }, ref) => {
+    return (
+      <input
+        type={type}
+        className={cn(
+          "w-full flex-1 border-none text-gray-950 focus-visible:outline-none disabled:cursor-default",
+          className,
+        )}
+        ref={ref}
+        {...props}
+      />
+    );
+  },
+);
 BareInput.displayName = "BareInput";
 
 export { Input, BareInput, InputWithIcon };

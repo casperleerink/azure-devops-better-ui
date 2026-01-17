@@ -1,5 +1,5 @@
-import { ChevronRightIcon } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { ChevronRightIcon } from "lucide-react";
 
 export const Breadcrumbs = ({
   items,

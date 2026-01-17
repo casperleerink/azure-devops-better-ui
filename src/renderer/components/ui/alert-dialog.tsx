@@ -1,7 +1,7 @@
 "use client";
 
-import * as React from "react";
 import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog";
+import type * as React from "react";
 import { buttonVariants } from "./button";
 
 export const AlertDialog = ({
@@ -17,9 +17,7 @@ export const AlertDialog = ({
 }) => {
   return (
     <AlertDialogPrimitive.Root>
-      <AlertDialogPrimitive.Trigger asChild>
-        {trigger}
-      </AlertDialogPrimitive.Trigger>
+      <AlertDialogPrimitive.Trigger asChild>{trigger}</AlertDialogPrimitive.Trigger>
       <AlertDialogPrimitive.Portal>
         <AlertDialogPrimitive.Overlay className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50" />
         <AlertDialogPrimitive.Content className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed top-8 left-1/2 z-50 w-full max-w-md -translate-x-1/2 rounded-xl bg-gray-50 duration-200 focus-within:outline-none">
