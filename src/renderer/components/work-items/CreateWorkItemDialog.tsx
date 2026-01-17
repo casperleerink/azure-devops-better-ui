@@ -5,7 +5,7 @@ import type {
   WorkItemType,
 } from "@shared/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,7 +32,7 @@ import {
   FormFieldLabel,
   FormFieldTextarea,
 } from "@/components/ui/form-field";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { ComboboxTrigger, Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -187,15 +187,9 @@ export function CreateWorkItemDialog({ trigger }: CreateWorkItemDialogProps) {
                   <FormFieldControl>
                     <Popover open={iterationOpen} onOpenChange={setIterationOpen} modal={false}>
                       <PopoverTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          className="w-full justify-between border border-alpha/10 rounded-lg px-3 font-normal h-9"
-                        >
-                          <span className="truncate text-sm">
-                            {selectedIteration?.name ?? "Select sprint..."}
-                          </span>
-                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                        </Button>
+                        <ComboboxTrigger variant="bare" placeholder="Select sprint...">
+                          {selectedIteration?.name}
+                        </ComboboxTrigger>
                       </PopoverTrigger>
                       <PopoverContent className="w-64 p-0" align="start">
                         <Command>
@@ -253,20 +247,17 @@ export function CreateWorkItemDialog({ trigger }: CreateWorkItemDialogProps) {
                     <FormFieldControl>
                       <Popover open={parentOpen} onOpenChange={setParentOpen} modal={false}>
                         <PopoverTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            className="w-full justify-between border border-alpha/10 rounded-lg px-3 font-normal h-9"
+                          <ComboboxTrigger
+                            variant="bare"
                             disabled={parentsLoading}
+                            placeholder={
+                              parentsLoading
+                                ? "Loading..."
+                                : `Select ${parentType.toLowerCase()}...`
+                            }
                           >
-                            <span className="truncate text-sm">
-                              {selectedParent
-                                ? `${selectedParent.id}: ${selectedParent.title}`
-                                : parentsLoading
-                                  ? "Loading..."
-                                  : `Select ${parentType.toLowerCase()}...`}
-                            </span>
-                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                          </Button>
+                            {selectedParent && `${selectedParent.id}: ${selectedParent.title}`}
+                          </ComboboxTrigger>
                         </PopoverTrigger>
                         <PopoverContent className="w-80 p-0" align="start">
                           <Command>
@@ -297,7 +288,9 @@ export function CreateWorkItemDialog({ trigger }: CreateWorkItemDialogProps) {
                                     }}
                                     className="items-center"
                                   >
-                                    <span className="shrink-0 [&>svg]:size-4">{getTypeIcon(parent.type)}</span>
+                                    <span className="shrink-0 [&>svg]:size-4">
+                                      {getTypeIcon(parent.type)}
+                                    </span>
                                     <span className="truncate">{parent.title}</span>
                                     <Check
                                       className={cn(
