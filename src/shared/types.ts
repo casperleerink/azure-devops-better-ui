@@ -1,0 +1,84 @@
+export type WorkItemType = "Epic" | "Feature" | "User Story" | "Task";
+
+export type WorkItemSummary = {
+  id: number;
+  url: string;
+  type: WorkItemType;
+  title: string;
+  state: string;
+  assignedTo?: { displayName: string; uniqueName?: string };
+  areaPath?: string;
+  iterationPath?: string;
+  changedDate?: string;
+};
+
+export type WorkItemDetail = WorkItemSummary & {
+  descriptionHtml?: string;
+  tags?: string[];
+  parentId?: number;
+};
+
+export type WorkItemListFilters = {
+  assignedTo?: "me" | { identityId: string };
+  types: WorkItemType[];
+  states?: string[];
+  text?: string;
+  areaPath?: string;
+  iterationPath?: string;
+  changedSinceDays?: number;
+  sort?: "changedDesc" | "createdDesc";
+};
+
+export type WorkItemCreatePayload = {
+  type: WorkItemType;
+  title: string;
+  description?: string;
+  assignedTo?: string;
+  parentId?: number;
+  areaPath?: string;
+  iterationPath?: string;
+};
+
+export type WorkItemUpdatePatch = {
+  title?: string;
+  description?: string;
+  state?: string;
+  assignedTo?: string;
+  areaPath?: string;
+  iterationPath?: string;
+};
+
+export type AdoConfig = {
+  organizationUrl: string;
+  projectName: string;
+};
+
+export type Identity = {
+  id: string;
+  displayName: string;
+  uniqueName: string;
+  imageUrl?: string;
+};
+
+// IPC Channel types
+export type IpcChannels = {
+  // Config
+  "ado:config:get": () => Promise<AdoConfig | null>;
+  "ado:config:set": (config: AdoConfig) => Promise<void>;
+
+  // Auth
+  "ado:auth:setPat": (pat: string) => Promise<void>;
+  "ado:auth:clearPat": () => Promise<void>;
+  "ado:auth:test": () => Promise<{ success: boolean; error?: string }>;
+  "ado:auth:hasPat": () => Promise<boolean>;
+
+  // Identities
+  "ado:identities:search": (query: string) => Promise<Identity[]>;
+  "ado:identities:listProjectUsers": () => Promise<Identity[]>;
+
+  // Work Items
+  "ado:workItems:list": (filters: WorkItemListFilters) => Promise<WorkItemSummary[]>;
+  "ado:workItems:get": (id: number) => Promise<WorkItemDetail>;
+  "ado:workItems:create": (payload: WorkItemCreatePayload) => Promise<WorkItemDetail>;
+  "ado:workItems:update": (id: number, patch: WorkItemUpdatePatch) => Promise<WorkItemDetail>;
+};
