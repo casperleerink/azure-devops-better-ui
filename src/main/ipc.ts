@@ -8,8 +8,10 @@ import type {
 } from "../shared/types";
 import {
   createWorkItem,
+  getCurrentUser,
   getWorkItem,
   getWorkItemTypeStates,
+  listAreaPaths,
   listIterations,
   listProjectUsers,
   listWorkItems,
@@ -56,6 +58,10 @@ export function registerIpcHandlers() {
     return listProjectUsers();
   });
 
+  ipcMain.handle("ado:identities:getCurrentUser", async () => {
+    return getCurrentUser();
+  });
+
   // Work item handlers
   ipcMain.handle("ado:workItems:list", async (_, filters: WorkItemListFilters) => {
     return listWorkItems(filters);
@@ -80,5 +86,10 @@ export function registerIpcHandlers() {
   // Iteration handlers
   ipcMain.handle("ado:iterations:list", async () => {
     return listIterations();
+  });
+
+  // Area path handlers
+  ipcMain.handle("ado:areaPaths:list", async () => {
+    return listAreaPaths();
   });
 }

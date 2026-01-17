@@ -1,5 +1,6 @@
 import { Link, Outlet, useLocation } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
+import { Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { CreateWorkItemDialog } from "@/components/work-items/CreateWorkItemDialog";
 import { cn } from "../lib/utils";
@@ -36,14 +37,16 @@ export function RootLayout() {
               ))}
             </div>
           </div>
-          <CreateWorkItemDialog
-            trigger={
-              <Button variant="primary" size="default">
-                <Plus className="size-4" />
-                <span>New Work Item</span>
-              </Button>
-            }
-          />
+          <Suspense>
+            <CreateWorkItemDialog
+              trigger={
+                <Button variant="primary" size="default">
+                  <Plus className="size-4" />
+                  <span>New Work Item</span>
+                </Button>
+              }
+            />
+          </Suspense>
         </nav>
       </header>
       <main className="flex-1 overflow-auto bg-gray-100">

@@ -1,6 +1,7 @@
 import { contextBridge, ipcRenderer } from "electron";
 import type {
   AdoConfig,
+  AreaPath,
   Identity,
   Iteration,
   WorkItemCreatePayload,
@@ -28,6 +29,7 @@ const api = {
       ipcRenderer.invoke("ado:identities:search", query),
     listProjectUsers: (): Promise<Identity[]> =>
       ipcRenderer.invoke("ado:identities:listProjectUsers"),
+    getCurrentUser: (): Promise<Identity> => ipcRenderer.invoke("ado:identities:getCurrentUser"),
   },
   workItems: {
     list: (filters: WorkItemListFilters): Promise<WorkItemSummary[]> =>
@@ -42,6 +44,9 @@ const api = {
   },
   iterations: {
     list: (): Promise<Iteration[]> => ipcRenderer.invoke("ado:iterations:list"),
+  },
+  areaPaths: {
+    list: (): Promise<AreaPath[]> => ipcRenderer.invoke("ado:areaPaths:list"),
   },
 };
 

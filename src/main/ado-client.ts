@@ -1,4 +1,5 @@
 import type {
+  AreaPath,
   Identity,
   Iteration,
   WorkItemCreatePayload,
@@ -106,6 +107,29 @@ export async function testConnection(): Promise<{ success: boolean; error?: stri
   }
 }
 
+export async function getCurrentUser(): Promise<Identity> {
+  const result = await adoFetchOrg<{
+    authenticatedUser: {
+      id: string;
+      descriptor: string;
+      subjectDescriptor: string;
+      providerDisplayName: string;
+      customDisplayName?: string;
+      isActive: boolean;
+      properties: {
+        Account: { $value: string };
+      };
+    };
+  }>("connectionData?api-version=7.1-preview");
+
+  return {
+    id: result.authenticatedUser.id,
+    displayName:
+      result.authenticatedUser.customDisplayName || result.authenticatedUser.providerDisplayName,
+    uniqueName: result.authenticatedUser.properties.Account.$value,
+  };
+}
+
 function buildWiqlQuery(filters: WorkItemListFilters): string {
   const conditions: string[] = [];
 
@@ -135,7 +159,9 @@ function buildWiqlQuery(filters: WorkItemListFilters): string {
 
   // Area Path (escaped to prevent WIQL injection)
   if (filters.areaPath) {
-    conditions.push(`[System.AreaPath] UNDER '${escapeWiql(filters.areaPath)}'`);
+    // Clean up path: strip leading backslash and remove \Area segment
+    const cleanAreaPath = filters.areaPath.replace(/^\\/, "").replace(/\\Area(?=\\|$)/, "");
+    conditions.push(`[System.AreaPath] UNDER '${escapeWiql(cleanAreaPath)}'`);
   }
 
   // Iteration Path (escaped to prevent WIQL injection)
@@ -271,10 +297,12 @@ export async function createWorkItem(payload: WorkItemCreatePayload): Promise<Wo
   }
 
   if (payload.areaPath) {
+    // Clean up path: strip leading backslash and remove \Area segment
+    const cleanAreaPath = payload.areaPath.replace(/^\\/, "").replace(/\\Area(?=\\|$)/, "");
     patchDoc.push({
       op: "add",
       path: "/fields/System.AreaPath",
-      value: payload.areaPath,
+      value: cleanAreaPath,
     });
   }
 
@@ -348,10 +376,12 @@ export async function updateWorkItem(
   }
 
   if (patch.areaPath !== undefined) {
+    // Clean up path: strip leading backslash and remove \Area segment
+    const cleanAreaPath = patch.areaPath.replace(/^\\/, "").replace(/\\Area(?=\\|$)/, "");
     patchDoc.push({
       op: "replace",
       path: "/fields/System.AreaPath",
-      value: patch.areaPath,
+      value: cleanAreaPath,
     });
   }
 
@@ -486,4 +516,44 @@ export async function listIterations(): Promise<Iteration[]> {
       startDate: iteration.attributes?.startDate,
       finishDate: iteration.attributes?.finishDate,
     }));
+}
+
+export async function listAreaPaths(): Promise<AreaPath[]> {
+  interface ClassificationNode {
+    id: number;
+    name: string;
+    path: string;
+    hasChildren: boolean;
+    children?: ClassificationNode[];
+  }
+
+  const result = await adoFetch<ClassificationNode>(
+    "wit/classificationnodes/areas?$depth=10&api-version=7.1",
+  );
+
+  // Flatten the tree structure into a list
+  const areas: AreaPath[] = [];
+
+  function traverse(node: ClassificationNode) {
+    // API returns paths like "\ProjectName\Area\ActualArea\SubArea"
+    // but work items expect "ProjectName\ActualArea\SubArea"
+    // So we need to: 1) strip leading backslash, 2) remove the "\Area" segment
+    const cleanPath = node.path
+      .replace(/^\\/, "") // Remove leading backslash
+      .replace(/\\Area(?=\\|$)/, ""); // Remove \Area segment (but not if it's part of a name)
+    areas.push({
+      id: node.id,
+      name: node.name,
+      path: cleanPath,
+      hasChildren: node.hasChildren,
+    });
+    if (node.children) {
+      for (const child of node.children) {
+        traverse(child);
+      }
+    }
+  }
+
+  traverse(result);
+  return areas;
 }

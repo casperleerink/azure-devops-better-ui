@@ -1,5 +1,6 @@
 import type { QueryClient } from "@tanstack/react-query";
 import { createRootRouteWithContext, createRoute } from "@tanstack/react-router";
+import { currentUserQueryOptions } from "../lib/queries";
 import { RootLayout } from "./root";
 import { SettingsPage } from "./settings";
 import { WorkItemDetailPage } from "./work-item-detail";
@@ -11,6 +12,12 @@ interface RouterContext {
 
 const rootRoute = createRootRouteWithContext<RouterContext>()({
   component: RootLayout,
+  loader: async ({ context: { queryClient } }) => {
+    // Prefetch current user - don't await to avoid blocking if not authenticated
+    queryClient.prefetchQuery(currentUserQueryOptions).catch(() => {
+      // Ignore errors - user may not be authenticated yet
+    });
+  },
 });
 
 const indexRoute = createRoute({

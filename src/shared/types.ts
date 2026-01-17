@@ -75,6 +75,13 @@ export type Iteration = {
   finishDate?: string;
 };
 
+export type AreaPath = {
+  id: number;
+  name: string;
+  path: string;
+  hasChildren: boolean;
+};
+
 // IPC Channel types
 export type IpcChannels = {
   // Config
@@ -90,6 +97,7 @@ export type IpcChannels = {
   // Identities
   "ado:identities:search": (query: string) => Promise<Identity[]>;
   "ado:identities:listProjectUsers": () => Promise<Identity[]>;
+  "ado:identities:getCurrentUser": () => Promise<Identity>;
 
   // Work Items
   "ado:workItems:list": (filters: WorkItemListFilters) => Promise<WorkItemSummary[]>;
@@ -100,4 +108,7 @@ export type IpcChannels = {
 
   // Iterations
   "ado:iterations:list": () => Promise<Iteration[]>;
+
+  // Area Paths
+  "ado:areaPaths:list": () => Promise<AreaPath[]>;
 };
