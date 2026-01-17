@@ -1,7 +1,21 @@
-import type { WorkItemCreatePayload, WorkItemType } from "@shared/types";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import type {
+  Iteration,
+  WorkItemCreatePayload,
+  WorkItemSummary,
+  WorkItemType,
+} from "@shared/types";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Check, ChevronsUpDown } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import {
   Dialog,
   DialogContent,
@@ -18,6 +32,7 @@ import {
   FormFieldLabel,
   FormFieldTextarea,
 } from "@/components/ui/form-field";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -25,7 +40,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 import { getTypeIcon, workItemTypes } from "@/lib/work-item-utils";
+
+/** Get the parent work item type for a given type */
+function getParentType(type: WorkItemType): WorkItemType | null {
+  switch (type) {
+    case "Task":
+      return "User Story";
+    case "User Story":
+      return "Feature";
+    case "Feature":
+      return "Epic";
+    case "Epic":
+      return null;
+  }
+}
+
+/** States to exclude when filtering potential parent work items */
+const EXCLUDED_STATES = ["Closed", "Done", "Removed", "Resolved"];
 
 interface CreateWorkItemDialogProps {
   trigger: React.ReactNode;
@@ -37,6 +70,49 @@ export function CreateWorkItemDialog({ trigger }: CreateWorkItemDialogProps) {
   const [type, setType] = useState<WorkItemType>("Task");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [selectedIteration, setSelectedIteration] = useState<Iteration | null>(null);
+  const [selectedParent, setSelectedParent] = useState<WorkItemSummary | null>(null);
+  const [iterationOpen, setIterationOpen] = useState(false);
+  const [parentOpen, setParentOpen] = useState(false);
+
+  // Fetch config for default area path
+  const { data: config } = useQuery({
+    queryKey: ["config"],
+    queryFn: () => window.ado.config.get(),
+  });
+
+  // Fetch iterations
+  const { data: iterations } = useQuery({
+    queryKey: ["iterations"],
+    queryFn: () => window.ado.iterations.list(),
+    staleTime: 1000 * 60 * 5,
+  });
+
+  // Determine parent type based on selected work item type
+  const parentType = getParentType(type);
+
+  // Fetch potential parent work items (filtered by default area path if set)
+  const { data: potentialParents, isLoading: parentsLoading } = useQuery({
+    queryKey: ["workItems", "parents", parentType, config?.defaultAreaPath],
+    queryFn: () =>
+      window.ado.workItems.list({
+        types: parentType ? [parentType] : [],
+        sort: "changedDesc",
+        areaPath: config?.defaultAreaPath,
+      }),
+    enabled: !!parentType,
+    staleTime: 1000 * 60 * 2,
+    select: (items) => items.filter((item) => !EXCLUDED_STATES.includes(item.state)),
+  });
+
+  // Clear parent selection when type changes and parent type is different
+  const handleTypeChange = (newType: WorkItemType) => {
+    const newParentType = getParentType(newType);
+    if (newParentType !== parentType) {
+      setSelectedParent(null);
+    }
+    setType(newType);
+  };
 
   const createMutation = useMutation({
     mutationFn: (payload: WorkItemCreatePayload) => window.ado.workItems.create(payload),
@@ -47,6 +123,8 @@ export function CreateWorkItemDialog({ trigger }: CreateWorkItemDialogProps) {
       setType("Task");
       setTitle("");
       setDescription("");
+      setSelectedIteration(null);
+      setSelectedParent(null);
     },
   });
 
@@ -58,6 +136,8 @@ export function CreateWorkItemDialog({ trigger }: CreateWorkItemDialogProps) {
       type,
       title: title.trim(),
       description: description.trim() || undefined,
+      iterationPath: selectedIteration?.path,
+      parentId: selectedParent?.id,
     });
   };
 
@@ -76,7 +156,10 @@ export function CreateWorkItemDialog({ trigger }: CreateWorkItemDialogProps) {
               <FormFieldContainer>
                 <FormFieldLabel required>Type</FormFieldLabel>
                 <FormFieldControl>
-                  <Select value={type} onValueChange={(value) => setType(value as WorkItemType)}>
+                  <Select
+                    value={type}
+                    onValueChange={(value) => handleTypeChange(value as WorkItemType)}
+                  >
                     <SelectTrigger className="h-auto p-0 focus:ring-0 hover:bg-transparent [&>span]:flex [&>span]:items-center [&>span]:gap-2 [&_svg]:size-4">
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
@@ -94,6 +177,148 @@ export function CreateWorkItemDialog({ trigger }: CreateWorkItemDialogProps) {
                 </FormFieldControl>
               </FormFieldContainer>
             </FormField>
+
+            {/* Sprint and Parent row */}
+            <div className="flex gap-4">
+              {/* Sprint/Iteration field */}
+              <FormField className="flex-1">
+                <FormFieldContainer>
+                  <FormFieldLabel>Sprint</FormFieldLabel>
+                  <FormFieldControl>
+                    <Popover open={iterationOpen} onOpenChange={setIterationOpen} modal={false}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-between border border-alpha/10 rounded-lg px-3 font-normal h-9"
+                        >
+                          <span className="truncate text-sm">
+                            {selectedIteration?.name ?? "Select sprint..."}
+                          </span>
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-64 p-0" align="start">
+                        <Command>
+                          <CommandInput placeholder="Search sprints..." />
+                          <CommandList>
+                            <CommandEmpty>No sprints found.</CommandEmpty>
+                            <CommandGroup>
+                              <CommandItem
+                                onSelect={() => {
+                                  setSelectedIteration(null);
+                                  setIterationOpen(false);
+                                }}
+                              >
+                                None
+                                <Check
+                                  className={cn(
+                                    "ml-auto",
+                                    selectedIteration === null ? "opacity-100" : "opacity-0",
+                                  )}
+                                />
+                              </CommandItem>
+                              {iterations?.map((iteration) => (
+                                <CommandItem
+                                  key={iteration.id}
+                                  onSelect={() => {
+                                    setSelectedIteration(iteration);
+                                    setIterationOpen(false);
+                                  }}
+                                >
+                                  {iteration.name}
+                                  <Check
+                                    className={cn(
+                                      "ml-auto",
+                                      selectedIteration?.id === iteration.id
+                                        ? "opacity-100"
+                                        : "opacity-0",
+                                    )}
+                                  />
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                  </FormFieldControl>
+                </FormFieldContainer>
+              </FormField>
+
+              {/* Parent work item field - only show if not Epic */}
+              {parentType && (
+                <FormField className="flex-1">
+                  <FormFieldContainer>
+                    <FormFieldLabel>Parent {parentType}</FormFieldLabel>
+                    <FormFieldControl>
+                      <Popover open={parentOpen} onOpenChange={setParentOpen} modal={false}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            className="w-full justify-between border border-alpha/10 rounded-lg px-3 font-normal h-9"
+                            disabled={parentsLoading}
+                          >
+                            <span className="truncate text-sm">
+                              {selectedParent
+                                ? `${selectedParent.id}: ${selectedParent.title}`
+                                : parentsLoading
+                                  ? "Loading..."
+                                  : `Select ${parentType.toLowerCase()}...`}
+                            </span>
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-80 p-0" align="start">
+                          <Command>
+                            <CommandInput placeholder={`Search ${parentType.toLowerCase()}s...`} />
+                            <CommandList>
+                              <CommandEmpty>No {parentType.toLowerCase()}s found.</CommandEmpty>
+                              <CommandGroup>
+                                <CommandItem
+                                  onSelect={() => {
+                                    setSelectedParent(null);
+                                    setParentOpen(false);
+                                  }}
+                                >
+                                  None
+                                  <Check
+                                    className={cn(
+                                      "ml-auto",
+                                      selectedParent === null ? "opacity-100" : "opacity-0",
+                                    )}
+                                  />
+                                </CommandItem>
+                                {potentialParents?.map((parent) => (
+                                  <CommandItem
+                                    key={parent.id}
+                                    onSelect={() => {
+                                      setSelectedParent(parent);
+                                      setParentOpen(false);
+                                    }}
+                                    className="items-center"
+                                  >
+                                    <span className="shrink-0 [&>svg]:size-4">{getTypeIcon(parent.type)}</span>
+                                    <span className="truncate">{parent.title}</span>
+                                    <Check
+                                      className={cn(
+                                        "ml-auto",
+                                        selectedParent?.id === parent.id
+                                          ? "opacity-100"
+                                          : "opacity-0",
+                                      )}
+                                    />
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                    </FormFieldControl>
+                  </FormFieldContainer>
+                </FormField>
+              )}
+            </div>
 
             {/* Title Input */}
             <FormField>

@@ -8,7 +8,7 @@ const Command = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive>
 >(({ className, ...props }, ref) => (
-  <CommandPrimitive ref={ref} className={cn("flex h-full w-full flex-col", className)} {...props} />
+  <CommandPrimitive ref={ref} className={cn("flex w-full flex-col overflow-hidden", className)} {...props} />
 ));
 Command.displayName = CommandPrimitive.displayName;
 
@@ -51,7 +51,7 @@ const CommandList = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <CommandPrimitive.List
     ref={ref}
-    className={cn("max-h-[300px] overflow-x-hidden overflow-y-auto", className)}
+    className={cn("max-h-[300px] overflow-x-hidden overflow-y-auto overscroll-contain", className)}
     {...props}
   />
 ));
@@ -110,7 +110,7 @@ const CommandItem = React.forwardRef<
   <CommandPrimitive.Item
     ref={ref}
     className={cn(
-      "ease-fluid data-[selected=true]:bg-alpha/3 data-[selected=true]:hover:bg-alpha/3 relative flex h-9 cursor-default items-center gap-3 rounded-lg px-2 text-sm font-medium outline-hidden transition-colors duration-100 select-none [&>svg]:size-4 [&>svg]:shrink-0",
+      "ease-fluid data-[selected=true]:bg-alpha/3 data-[selected=true]:hover:bg-alpha/3 relative flex h-9 cursor-default items-center gap-2 rounded-lg px-2 text-sm font-medium outline-hidden transition-colors duration-100 select-none [&>svg]:size-4 [&>svg]:shrink-0",
       className,
     )}
     {...props}

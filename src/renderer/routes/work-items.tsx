@@ -22,6 +22,11 @@ export function WorkItemsPage() {
   const filters = useWorkItemFiltersStore((state) => state.filters);
   const selectedUser = useWorkItemFiltersStore((state) => state.selectedUser);
 
+  const { data: config } = useQuery({
+    queryKey: ["config"],
+    queryFn: () => window.ado.config.get(),
+  });
+
   const { data: iterations } = useQuery({
     queryKey: ["iterations"],
     queryFn: () => window.ado.iterations.list(),
@@ -34,14 +39,19 @@ export function WorkItemsPage() {
     staleTime: 1000 * 60 * 5,
   });
 
+  // Merge default area path from config with filters
+  const filtersWithAreaPath = config?.defaultAreaPath
+    ? { ...filters, areaPath: config.defaultAreaPath }
+    : filters;
+
   const {
     data: workItems,
     isLoading,
     isFetching,
     error,
   } = useQuery({
-    queryKey: ["workItems", filters],
-    queryFn: () => window.ado.workItems.list(filters),
+    queryKey: ["workItems", filtersWithAreaPath],
+    queryFn: () => window.ado.workItems.list(filtersWithAreaPath),
     placeholderData: keepPreviousData,
   });
 

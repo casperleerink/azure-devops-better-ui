@@ -1,6 +1,6 @@
 import type { AdoConfig } from "@shared/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Globe } from "lucide-react";
+import { FolderTree, Globe } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { InputWithIcon } from "@/components/ui/input";
@@ -16,11 +16,13 @@ export function ConnectionSettings() {
 
   const [organizationUrl, setOrganizationUrl] = useState("");
   const [projectName, setProjectName] = useState("");
+  const [defaultAreaPath, setDefaultAreaPath] = useState("");
 
   useEffect(() => {
     if (config) {
       setOrganizationUrl(config.organizationUrl);
       setProjectName(config.projectName);
+      setDefaultAreaPath(config.defaultAreaPath ?? "");
     }
   }, [config]);
 
@@ -36,6 +38,7 @@ export function ConnectionSettings() {
       saveConfigMutation.mutate({
         organizationUrl: organizationUrl.replace(/\/$/, ""),
         projectName,
+        defaultAreaPath: defaultAreaPath.trim() || undefined,
       });
     }
   };
@@ -65,6 +68,19 @@ export function ConnectionSettings() {
             onChange={(e) => setProjectName(e.target.value)}
             placeholder="MyProject"
           />
+        </div>
+        <div>
+          <Label className="mb-2 block">Default Area Path</Label>
+          <InputWithIcon
+            iconLeft={<FolderTree className="text-gray-400" />}
+            type="text"
+            value={defaultAreaPath}
+            onChange={(e) => setDefaultAreaPath(e.target.value)}
+            placeholder="MyProject\Team\Area (optional)"
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            Filter all work items by this area path. Leave empty for no filtering.
+          </p>
         </div>
         <Button
           onClick={handleSaveConfig}

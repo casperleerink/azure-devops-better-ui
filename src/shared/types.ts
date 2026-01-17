@@ -51,6 +51,7 @@ export type WorkItemUpdatePatch = {
 export type AdoConfig = {
   organizationUrl: string;
   projectName: string;
+  defaultAreaPath?: string;
 };
 
 export type Identity = {
