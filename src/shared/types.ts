@@ -19,7 +19,7 @@ export type WorkItemDetail = WorkItemSummary & {
 };
 
 export type WorkItemListFilters = {
-  assignedTo?: "me" | { identityId: string };
+  assignedTo?: "me" | { identityId: string; uniqueName: string };
   types: WorkItemType[];
   states?: string[];
   text?: string;

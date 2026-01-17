@@ -1,3 +1,4 @@
+export { CreateWorkItemDialog } from "./CreateWorkItemDialog";
 export { FilterBar } from "./FilterBar";
 export { IterationCombobox } from "./IterationCombobox";
 export { SearchInput } from "./SearchInput";

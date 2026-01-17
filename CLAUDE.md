@@ -84,3 +84,28 @@ All main↔renderer communication flows through typed IPC channels:
 - **Styling**: Tailwind CSS 4, Radix UI primitives
 - **Build**: Vite (renderer), tsc (main/preload), Bun (package manager)
 - **Linting**: Biome
+
+## Styling Guidelines
+
+### Color Usage (IMPORTANT)
+
+**Never use hardcoded `white`, `black`, or raw hex colors.** The app supports both light and dark themes via CSS variables that automatically swap values.
+
+Use only the theme-aware color tokens defined in `src/renderer/index.css`:
+
+- **Grays**: `gray-50` through `gray-950` (these swap between light/dark mode)
+- **Alpha**: `alpha` for foreground color (black in light mode, white in dark mode)
+- **Semantic colors**: `blue-500`, `red-500`, `green-500`, etc.
+
+Examples:
+```jsx
+// GOOD - uses theme-aware colors
+<div className="bg-gray-100 text-gray-950 border-alpha/10" />
+
+// BAD - hardcoded colors that won't adapt to dark mode
+<div className="bg-white text-black border-gray-950/50" />
+```
+
+The gray scale inverts between modes:
+- Light mode: `gray-50` = white, `gray-950` = near-black
+- Dark mode: `gray-50` = dark, `gray-950` = near-white

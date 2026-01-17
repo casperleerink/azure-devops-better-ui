@@ -28,8 +28,7 @@ export function UserCombobox({ users }: UserComboboxProps) {
     setOpen(false);
   };
 
-  const label =
-    selectedUser === "me" ? "Me" : selectedUser === null ? "All" : selectedUser.displayName;
+  const label = selectedUser === "me" ? "Me" : (selectedUser?.displayName ?? "Anyone");
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -56,15 +55,6 @@ export function UserCombobox({ users }: UserComboboxProps) {
                   )}
                 />
                 Me
-              </CommandItem>
-              <CommandItem onSelect={() => handleSelect(null)}>
-                <Check
-                  className={cn(
-                    "mr-2 h-4 w-4",
-                    selectedUser === null ? "opacity-100" : "opacity-0",
-                  )}
-                />
-                All
               </CommandItem>
               {users?.map((user) => (
                 <CommandItem key={user.id} onSelect={() => handleSelect(user)}>

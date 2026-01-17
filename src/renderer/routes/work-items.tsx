@@ -6,11 +6,9 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { FilterBar, WorkItemRow, WorkItemRowSkeleton } from "@/components/work-items";
 import { workItemTypes } from "@/lib/work-item-utils";
@@ -39,6 +37,7 @@ export function WorkItemsPage() {
   const {
     data: workItems,
     isLoading,
+    isFetching,
     error,
   } = useQuery({
     queryKey: ["workItems", filters],
@@ -80,9 +79,9 @@ export function WorkItemsPage() {
   const sectionTitle =
     selectedUser === "me"
       ? "Assigned to Me"
-      : selectedUser === null
-        ? "All Work Items"
-        : `Assigned to ${selectedUser.displayName}`;
+      : selectedUser
+        ? `Assigned to ${selectedUser.displayName}`
+        : "All Work Items";
 
   return (
     <div className="h-full bg-gray-50">
@@ -112,10 +111,13 @@ export function WorkItemsPage() {
                   )}
                 </button>
               </CollapsibleTrigger>
-              <CollapsibleContent>
+              <CollapsibleContent className="relative">
+                {isFetching && !isLoading && (
+                  <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-400 to-blue-500 animate-pulse z-10" />
+                )}
                 {isLoading ? (
                   <div>
-                    {[...Array(6)].map((_, i) => (
+                    {[...Array(16)].map((_, i) => (
                       <WorkItemRowSkeleton key={i} />
                     ))}
                   </div>
@@ -137,9 +139,6 @@ export function WorkItemsPage() {
                     <p className="text-sm text-gray-400 mt-1">
                       Try adjusting your filters or create a new work item
                     </p>
-                    <Button asChild variant="subtle" size="sm" className="mt-4">
-                      <Link to="/create">Create Work Item</Link>
-                    </Button>
                   </div>
                 )}
               </CollapsibleContent>

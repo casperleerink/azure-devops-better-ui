@@ -28,6 +28,14 @@ export function WorkItemRow({ item, onStatusChange, isUpdating, states }: WorkIt
         {item.title}
       </Link>
       <div className="flex items-center gap-3 pr-4">
+        <span className="text-xs text-gray-500 shrink-0 text-right whitespace-nowrap">
+          {item.changedDate ? formatShortDate(item.changedDate) : "-"}
+        </span>
+        {item.assignedTo ? (
+          <Avatar size="md" fallback={item.assignedTo.displayName} />
+        ) : (
+          <div className="size-6 rounded-full bg-alpha/5" />
+        )}
         <Select
           value={item.state}
           onValueChange={(value) => onStatusChange(item.id, value)}
@@ -60,14 +68,6 @@ export function WorkItemRow({ item, onStatusChange, isUpdating, states }: WorkIt
             ))}
           </SelectContent>
         </Select>
-        {item.assignedTo ? (
-          <Avatar size="sm" fallback={item.assignedTo.displayName} />
-        ) : (
-          <div className="size-5 rounded-full bg-alpha/5" />
-        )}
-        <span className="text-xs text-gray-500 shrink-0 text-right whitespace-nowrap">
-          {item.changedDate ? formatShortDate(item.changedDate) : "-"}
-        </span>
         <Button variant="ghost" size="icon-xs" className="opacity-0 group-hover:opacity-100">
           <MoreHorizontal />
         </Button>

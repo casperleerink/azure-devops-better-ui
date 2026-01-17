@@ -1,6 +1,5 @@
 import type { Identity, Iteration, WorkItemListFilters, WorkItemType } from "@shared/types";
 import { create } from "zustand";
-import { workItemTypes } from "@/lib/work-item-utils";
 
 interface WorkItemFiltersState {
   filters: WorkItemListFilters;
@@ -13,11 +12,12 @@ interface WorkItemFiltersState {
   setSelectedUser: (user: Identity | "me" | null) => void;
   setSelectedIteration: (iteration: Iteration | null) => void;
   toggleType: (type: WorkItemType) => void;
+  setTypes: (types: WorkItemType[]) => void;
 }
 
 export const useWorkItemFiltersStore = create<WorkItemFiltersState>((set) => ({
   filters: {
-    types: workItemTypes,
+    types: ["User Story", "Task"],
     assignedTo: "me",
   },
   selectedUser: "me",
@@ -35,7 +35,12 @@ export const useWorkItemFiltersStore = create<WorkItemFiltersState>((set) => ({
       selectedUser: user,
       filters: {
         ...state.filters,
-        assignedTo: user === "me" ? "me" : user ? { identityId: user.id } : undefined,
+        assignedTo:
+          user === "me"
+            ? "me"
+            : user
+              ? { identityId: user.id, uniqueName: user.uniqueName }
+              : undefined,
       },
     })),
 
@@ -55,6 +60,14 @@ export const useWorkItemFiltersStore = create<WorkItemFiltersState>((set) => ({
         types: state.filters.types.includes(type)
           ? state.filters.types.filter((t) => t !== type)
           : [...state.filters.types, type],
+      },
+    })),
+
+  setTypes: (types) =>
+    set((state) => ({
+      filters: {
+        ...state.filters,
+        types,
       },
     })),
 }));

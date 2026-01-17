@@ -95,8 +95,8 @@ export async function testConnection(): Promise<{ success: boolean; error?: stri
       return { success: false, error: "PAT not configured" };
     }
 
-    // Test by fetching project info
-    await adoFetch("projects?api-version=7.1");
+    // Test by fetching project info (org-level endpoint, no project in path)
+    await adoFetchOrg("projects?api-version=7.1");
     return { success: true };
   } catch (error) {
     return {
@@ -119,7 +119,7 @@ function buildWiqlQuery(filters: WorkItemListFilters): string {
   if (filters.assignedTo === "me") {
     conditions.push("[System.AssignedTo] = @Me");
   } else if (filters.assignedTo && typeof filters.assignedTo === "object") {
-    conditions.push(`[System.AssignedTo] = '${escapeWiql(filters.assignedTo.identityId)}'`);
+    conditions.push(`[System.AssignedTo] = '${escapeWiql(filters.assignedTo.uniqueName)}'`);
   }
 
   // States (escaped to prevent WIQL injection)
@@ -215,7 +215,7 @@ export async function listWorkItems(filters: WorkItemListFilters): Promise<WorkI
 
   // Batch fetch work items
   const ids = wiqlResult.workItems.map((w) => w.id);
-  const results: WorkItemSummary[] = [];
+  const workItemsById = new Map<number, WorkItemSummary>();
 
   for (let i = 0; i < ids.length; i += BATCH_SIZE) {
     const batchIds = ids.slice(i, i + BATCH_SIZE);
@@ -235,10 +235,13 @@ export async function listWorkItems(filters: WorkItemListFilters): Promise<WorkI
       `wit/workitems?ids=${idsParam}&fields=${fields}&api-version=7.1`,
     );
 
-    results.push(...batchResult.value.map(mapWorkItem));
+    for (const item of batchResult.value) {
+      workItemsById.set(item.id, mapWorkItem(item));
+    }
   }
 
-  return results;
+  // Preserve the original sort order from WIQL query
+  return ids.map((id) => workItemsById.get(id)!).filter(Boolean);
 }
 
 export async function getWorkItem(id: number): Promise<WorkItemDetail> {

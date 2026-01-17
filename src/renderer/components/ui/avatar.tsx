@@ -42,7 +42,7 @@ const avatarVariants = cva(
         false: "",
       },
       outline: {
-        none: "bg-alpha/10 border-none",
+        none: "bg-alpha/10 border-none text-gray-600",
         gray: "border-2 border-alpha/10 text-gray-950",
         cyan: "border-2 border-cyan-500 bg-cyan-500 text-gray-50",
         yellow: "border-2 border-yellow-500 bg-yellow-500 text-gray-50",
