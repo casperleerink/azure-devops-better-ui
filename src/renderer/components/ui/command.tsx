@@ -8,7 +8,11 @@ const Command = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive>
 >(({ className, ...props }, ref) => (
-  <CommandPrimitive ref={ref} className={cn("flex w-full flex-col overflow-hidden", className)} {...props} />
+  <CommandPrimitive
+    ref={ref}
+    className={cn("flex w-full flex-col overflow-hidden", className)}
+    {...props}
+  />
 ));
 Command.displayName = CommandPrimitive.displayName;
 

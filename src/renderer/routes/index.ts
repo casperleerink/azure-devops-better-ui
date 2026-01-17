@@ -1,6 +1,5 @@
 import type { QueryClient } from "@tanstack/react-query";
 import { createRootRouteWithContext, createRoute } from "@tanstack/react-router";
-import { CreateWorkItemPage } from "./create";
 import { RootLayout } from "./root";
 import { SettingsPage } from "./settings";
 import { WorkItemDetailPage } from "./work-item-detail";
@@ -32,12 +31,6 @@ const workItemDetailRoute = createRoute({
   component: WorkItemDetailPage,
 });
 
-const createRoute_ = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/create",
-  component: CreateWorkItemPage,
-});
-
 const settingsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/settings",
@@ -48,6 +41,5 @@ export const routeTree = rootRoute.addChildren([
   indexRoute,
   workItemsRoute,
   workItemDetailRoute,
-  createRoute_,
   settingsRoute,
 ]);
