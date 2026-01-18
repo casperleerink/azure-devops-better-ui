@@ -9,7 +9,7 @@
 |------|--------|-------|
 | 001 - Testing Setup | ✅ Complete | Vitest, MSW, tests all working |
 | 002 - UI Polish | ✅ Complete | Avatar depth, form states, empty/error states done |
-| 003 - Work Item Detail Improvements | ⏳ Pending | Main focus of this plan |
+| 003 - Work Item Detail Improvements | ✅ Complete | Auto-save, Tiptap editor, toast notifications all implemented |
 
 ---
 
@@ -57,7 +57,7 @@
 
 - [x] [LOW] Review skeleton loader dimensions to match actual content layout - from spec 003
 - [x] [LOW] Remove duplicate border on assignee row in `DetailsGrid.tsx` (if present) - from spec 003
-- [ ] [LOW] Integrate toast notifications for save errors - from spec 003
+- [x] [LOW] Integrate toast notifications for save errors - from spec 003
 
 ---
 
