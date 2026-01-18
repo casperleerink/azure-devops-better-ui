@@ -1,5 +1,6 @@
 import type { WorkItemUpdatePatch } from "@shared/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 type FieldName = keyof WorkItemUpdatePatch;
 
@@ -33,6 +34,12 @@ export function useFieldMutation(workItemId: number, fieldName: FieldName) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["workItem", workItemId] });
       queryClient.invalidateQueries({ queryKey: ["workItems"] });
+    },
+    onError: (error) => {
+      const message = error instanceof Error ? error.message : "Failed to save changes";
+      toast.error(`Failed to update ${fieldName}`, {
+        description: message,
+      });
     },
   });
 }

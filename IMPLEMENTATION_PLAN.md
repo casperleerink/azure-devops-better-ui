@@ -55,8 +55,8 @@
 
 ### Phase 7: Polish
 
-- [ ] [LOW] Review skeleton loader dimensions to match actual content layout - from spec 003
-- [ ] [LOW] Remove duplicate border on assignee row in `DetailsGrid.tsx` (if present) - from spec 003
+- [x] [LOW] Review skeleton loader dimensions to match actual content layout - from spec 003
+- [x] [LOW] Remove duplicate border on assignee row in `DetailsGrid.tsx` (if present) - from spec 003
 - [ ] [LOW] Integrate toast notifications for save errors - from spec 003
 
 ---
