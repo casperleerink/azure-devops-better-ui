@@ -31,7 +31,7 @@ const InputWithIcon = React.forwardRef<
       <input
         type={type}
         className={cn(
-          "border-alpha/10 focus-visible:border-alpha/20 flex h-8 w-full rounded-md border bg-transparent px-3 text-base text-gray-950 placeholder:text-gray-500 shadow-xs transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+          "border-alpha/5 focus-visible:border-blue-500 hover:bg-gray-100/70 flex h-8 w-full rounded-md border bg-transparent px-3 text-base text-gray-950 placeholder:text-gray-500 shadow-xs transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
           iconLeft ? "pl-7" : "",
           iconRight ? "pr-7" : "",
           className,

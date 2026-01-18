@@ -68,7 +68,7 @@ export function WorkItemRow({ item, onStatusChange, isUpdating, states }: WorkIt
             ))}
           </SelectContent>
         </Select>
-        <Button variant="ghost" size="icon-xs" className="opacity-0 group-hover:opacity-100">
+        <Button variant="ghost" size="icon-xs" className="text-gray-400 hover:text-gray-600">
           <MoreHorizontal />
         </Button>
       </div>

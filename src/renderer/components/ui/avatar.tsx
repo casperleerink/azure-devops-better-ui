@@ -42,13 +42,8 @@ const avatarVariants = cva(
         false: "",
       },
       outline: {
-        none: "bg-alpha/10 border-none text-gray-600",
-        gray: "border-2 border-alpha/10 text-gray-950",
-        cyan: "border-2 border-cyan-500 bg-cyan-500 text-gray-50",
-        yellow: "border-2 border-yellow-500 bg-yellow-500 text-gray-50",
-        green: "border-2 border-green-500 bg-green-500 text-gray-50",
-        red: "border-2 border-red-500 bg-red-500 text-gray-50",
-        purple: "border-2 border-purple-500 bg-purple-500 text-gray-50",
+        none: "bg-alpha/10 border-none text-gray-600 shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)]",
+        gray: "border-2 border-alpha/10 text-gray-950 shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)]",
       },
     },
     compoundVariants: [

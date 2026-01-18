@@ -6,7 +6,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { AlertCircle, ChevronDown, ChevronRight, Search } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -100,10 +100,15 @@ export function WorkItemsPage() {
       <div className="p-6">
         {error ? (
           <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-6">
-            <p className="text-red-500 font-medium">Error loading work items</p>
-            <p className="text-sm text-gray-500 mt-1">
-              {error instanceof Error ? error.message : "Failed to load work items"}
-            </p>
+            <div className="flex items-start gap-3">
+              <AlertCircle className="size-5 text-red-500 shrink-0 mt-0.5" />
+              <div>
+                <p className="text-red-600 font-medium">Error loading work items</p>
+                <p className="text-sm text-gray-600 mt-1">
+                  {error instanceof Error ? error.message : "Failed to load work items"}
+                </p>
+              </div>
+            </div>
           </div>
         ) : (
           <div className="rounded-xl border border-alpha/5 bg-gray-50 overflow-hidden">
@@ -144,9 +149,12 @@ export function WorkItemsPage() {
                     ))}
                   </div>
                 ) : (
-                  <div className="py-12 text-center">
-                    <p className="text-gray-500">No work items found</p>
-                    <p className="text-sm text-gray-400 mt-1">
+                  <div className="py-16 text-center">
+                    <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-alpha/5">
+                      <Search className="size-6 text-gray-400" />
+                    </div>
+                    <p className="font-medium text-gray-600">No work items found</p>
+                    <p className="mt-1 text-sm text-gray-400">
                       Try adjusting your filters or create a new work item
                     </p>
                   </div>

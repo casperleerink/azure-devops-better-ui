@@ -1,6 +1,6 @@
 # UI Polish and Consistency
 
-status: pending
+status: complete
 
 ## Description
 
@@ -9,37 +9,37 @@ Improve visual polish and consistency across the application. This includes fixi
 ## Acceptance Criteria
 
 ### Avatar Component
-- [ ] Avatar fallback has subtle depth (inner shadow or gradient) instead of flat background
-- [ ] Remove unused outline variants: `cyan`, `yellow`, `green`, `red`, `purple` (keep `none` and `gray`)
-- [ ] Remove associated compound variants and size mappings for removed variants
+- [x] Avatar fallback has subtle depth (inner shadow or gradient) instead of flat background
+- [x] Remove unused outline variants: `cyan`, `yellow`, `green`, `red`, `purple` (keep `none` and `gray`)
+- [x] Remove associated compound variants and size mappings for removed variants
 
 ### Work Item Row Menu
-- [ ] MoreHorizontal button is always visible (remove `opacity-0 group-hover:opacity-100`)
-- [ ] Button uses subtle styling that doesn't compete with primary content
+- [x] MoreHorizontal button is always visible (remove `opacity-0 group-hover:opacity-100`)
+- [x] Button uses subtle styling that doesn't compete with primary content
 
 ### Consistent Interactive States (FormField Style)
-- [ ] All form inputs use consistent focus state: `border-blue-500`
-- [ ] All form inputs use consistent hover state: subtle background change
-- [ ] All form inputs support error state: `border-red-500`
-- [ ] Components to update: `Input`, `InputWithIcon`, `BareInput`, `Select`, `UserCombobox`, `IterationCombobox`
+- [x] All form inputs use consistent focus state: `border-blue-500`
+- [x] All form inputs use consistent hover state: subtle background change
+- [x] All form inputs support error state: `border-red-500`
+- [x] Components to update: `Input`, `InputWithIcon`, `BareInput`, `Select`, `UserCombobox`, `IterationCombobox`
 
 ### Padding Consistency
-- [ ] Form field padding standardized to `p-2` / `px-2` scale
-- [ ] Review and normalize padding in: `FormFieldContainer`, `FormFieldControl`, `SelectTrigger`, `SelectItem`, `Input` variants, combobox triggers
+- [x] Form field padding standardized to `p-2` / `px-2` scale
+- [x] Review and normalize padding in: `FormFieldContainer`, `FormFieldControl`, `SelectTrigger`, `SelectItem`, `Input` variants, combobox triggers
 
 ### Empty States
-- [ ] Work items list empty state has icon (e.g., search or inbox icon) with improved layout
-- [ ] Work item not found state has icon (e.g., file-x or alert icon) with improved layout
-- [ ] Empty states use proper spacing, typography hierarchy, and theme-aware colors
+- [x] Work items list empty state has icon (e.g., search or inbox icon) with improved layout
+- [x] Work item not found state has icon (e.g., file-x or alert icon) with improved layout
+- [x] Empty states use proper spacing, typography hierarchy, and theme-aware colors
 
 ### Error States
-- [ ] Fix hardcoded `bg-red-50` to theme-aware `bg-red-500/5` in `work-item-detail.tsx`
-- [ ] Error states include appropriate icon (e.g., AlertCircle)
-- [ ] Error messages have consistent styling across all pages
+- [x] Fix hardcoded `bg-red-50` to theme-aware `bg-red-500/5` in `work-item-detail.tsx`
+- [x] Error states include appropriate icon (e.g., AlertCircle)
+- [x] Error messages have consistent styling across all pages
 
 ### Loading States
-- [ ] Loading skeletons use consistent border-radius matching their content
-- [ ] Review skeleton sizing to better match actual content dimensions
+- [x] Loading skeletons use consistent border-radius matching their content
+- [x] Review skeleton sizing to better match actual content dimensions
 
 ## Technical Notes
 
