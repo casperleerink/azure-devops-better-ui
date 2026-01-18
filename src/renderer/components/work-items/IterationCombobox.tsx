@@ -33,7 +33,7 @@ export function IterationCombobox({ iterations }: IterationComboboxProps) {
       <PopoverTrigger asChild>
         <Button
           variant="ghost"
-          className="h-8 w-40 justify-between border border-alpha/10 rounded-lg px-2 font-normal"
+          className="h-8 w-40 justify-between border border-alpha/5 rounded-lg px-2 font-normal hover:bg-gray-100/70 focus-visible:border-blue-500 transition-colors"
         >
           <span className="truncate">{selectedIteration?.name ?? "All Sprints"}</span>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />

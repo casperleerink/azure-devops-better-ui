@@ -1,7 +1,7 @@
 import type { WorkItemUpdatePatch } from "@shared/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useParams } from "@tanstack/react-router";
-import { ArrowLeft } from "lucide-react";
+import { AlertCircle, ArrowLeft, FileX } from "lucide-react";
 import { useEffect, useState } from "react";
 import { BareInput } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -96,11 +96,16 @@ export function WorkItemDetailPage() {
           </Link>
         </div>
         <div className="p-8">
-          <div className="rounded-xl border border-red-500/20 bg-red-50 p-6">
-            <p className="text-red-600 font-medium">Error loading work item</p>
-            <p className="text-sm text-gray-600 mt-1">
-              {error instanceof Error ? error.message : "Failed to load work item"}
-            </p>
+          <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-6">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="size-5 text-red-500 shrink-0 mt-0.5" />
+              <div>
+                <p className="text-red-600 font-medium">Error loading work item</p>
+                <p className="text-sm text-gray-600 mt-1">
+                  {error instanceof Error ? error.message : "Failed to load work item"}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -119,8 +124,14 @@ export function WorkItemDetailPage() {
             Back to Work Items
           </Link>
         </div>
-        <div className="p-8">
-          <p className="text-gray-600">Work item not found</p>
+        <div className="py-16 text-center">
+          <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-alpha/5">
+            <FileX className="size-6 text-gray-400" />
+          </div>
+          <p className="font-medium text-gray-600">Work item not found</p>
+          <p className="mt-1 text-sm text-gray-400">
+            This work item may have been deleted or you don't have access
+          </p>
         </div>
       </div>
     );
