@@ -17,25 +17,20 @@ Based on Geoffrey Huntley's Ralph Wiggum methodology.
 ## Phase 1: Select Work Item
 
 ### If IMPLEMENTATION_PLAN.md exists:
-Pick the **HIGHEST PRIORITY** incomplete task from the plan.
+Pick **1** HIGHEST PRIORITY incomplete task from the plan.
 
-### If NO plan exists (preferred simple approach):
-Look at `specs/` folder and pick the **HIGHEST PRIORITY** spec that:
-- Is NOT marked as complete (no `[x] DONE` or similar in the spec)
-- Has incomplete acceptance criteria
-- Has the highest priority (lower number = higher priority, e.g., 001 before 010)
-
-Before implementing, search the codebase — don't assume it's not done.
+### If IMPLEMENTATION_PLAN.md doesn't exist
+We should get out of the loop so return `<promise>DONE</promise>`
 
 ---
 
 ## Phase 2: Implement
 
-Implement the selected spec/task completely:
-- Follow the spec's requirements exactly
+Implement the selected task completely:
+- Follow the task's requirements exactly
 - Write clean, maintainable code
 - Add tests as needed
-- Mark the spec as complete when done
+- Mark the task as complete when done
 
 ---
 
@@ -43,15 +38,15 @@ Implement the selected spec/task completely:
 
 Run the project's test suite and verify:
 - All tests pass
+- No type errors
 - No lint errors
-- The spec's acceptance criteria are 100% met
+- The task's acceptance criteria are 100% met
 
 ---
 
 ## Phase 4: Commit & Update
 
-1. If using IMPLEMENTATION_PLAN.md, update it to mark task complete
-2. If working directly from specs, add `## Status: COMPLETE` to the spec file
+1. IMPLEMENTATION_PLAN.md, update it to mark the task complete
 3. `git add -A`
 4. `git commit` with a descriptive message
 5. `git push`
@@ -60,7 +55,7 @@ Run the project's test suite and verify:
 
 ## Completion Signal
 
-**CRITICAL:** Only output the magic phrase when the spec/task is 100% complete.
+**CRITICAL:** Only output the magic phrase when all the tasks are 100% complete.
 
 Check:
 - [ ] Implementation matches all requirements
