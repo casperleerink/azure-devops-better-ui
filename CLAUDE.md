@@ -94,7 +94,7 @@ All main↔renderer communication flows through typed IPC channels:
 Use only the theme-aware color tokens defined in `src/renderer/index.css`:
 
 - **Grays**: `gray-50` through `gray-950` (these swap between light/dark mode)
-- **Alpha**: `alpha` for foreground color (black in light mode, white in dark mode)
+- **Alpha**: `alpha` for transparent colors, eg always used like `alpha/10` or `alpha/5` (black in light mode, white in dark mode)
 - **Semantic colors**: `blue-500`, `red-500`, `green-500`, etc.
 
 Examples:
@@ -109,3 +109,13 @@ Examples:
 The gray scale inverts between modes:
 - Light mode: `gray-50` = white, `gray-950` = near-black
 - Dark mode: `gray-50` = dark, `gray-950` = near-white
+
+## Autonomous Development (Ralph Wiggum)
+
+This project uses [Ralph Wiggum](https://github.com/fstandhartinger/ralph-wiggum) for spec-driven autonomous development.
+
+- **Constitution:** `.specify/memory/constitution.md` - Project principles and settings
+- **Specs:** `specs/` - Feature specifications with acceptance criteria
+- **Build loop:** `./scripts/ralph-loop.sh` - Run autonomous implementation
+
+See `AGENTS.md` for full autonomous agent instructions.
