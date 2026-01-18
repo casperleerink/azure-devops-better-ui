@@ -1,3 +1,4 @@
+export { DescriptionEditor } from "./DescriptionEditor";
 export { DescriptionSection } from "./DescriptionSection";
 export { DetailHeader } from "./DetailHeader";
 export { DetailsGrid } from "./DetailsGrid";
