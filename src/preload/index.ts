@@ -4,6 +4,7 @@ import type {
   AreaPath,
   Identity,
   Iteration,
+  UserSearchResult,
   WorkItemCreatePayload,
   WorkItemDetail,
   WorkItemListFilters,
@@ -30,6 +31,10 @@ const api = {
     listProjectUsers: (): Promise<Identity[]> =>
       ipcRenderer.invoke("ado:identities:listProjectUsers"),
     getCurrentUser: (): Promise<Identity> => ipcRenderer.invoke("ado:identities:getCurrentUser"),
+  },
+  users: {
+    search: (query: string): Promise<UserSearchResult[]> =>
+      ipcRenderer.invoke("ado:users:search", query),
   },
   workItems: {
     list: (filters: WorkItemListFilters): Promise<WorkItemSummary[]> =>

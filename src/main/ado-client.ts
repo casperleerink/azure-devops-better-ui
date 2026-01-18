@@ -2,6 +2,7 @@ import type {
   AreaPath,
   Identity,
   Iteration,
+  UserSearchResult,
   WorkItemCreatePayload,
   WorkItemDetail,
   WorkItemListFilters,
@@ -405,6 +406,30 @@ export async function updateWorkItem(
 }
 
 export async function searchIdentities(query: string): Promise<Identity[]> {
+  const result = await adoFetchOrg<{ results: any[] }>(
+    `IdentityPicker/Identities?api-version=7.1-preview.1`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        query,
+        identityTypes: ["user"],
+        operationScopes: ["ims", "source"],
+        options: { MinResults: 5, MaxResults: 20 },
+      }),
+    },
+  );
+
+  return result.results.flatMap((r: any) =>
+    r.identities.map((i: any) => ({
+      id: i.localId,
+      displayName: i.displayName,
+      uniqueName: i.signInAddress || i.samAccountName,
+      imageUrl: i.image,
+    })),
+  );
+}
+
+export async function searchUsers(query: string): Promise<UserSearchResult[]> {
   const result = await adoFetchOrg<{ results: any[] }>(
     `IdentityPicker/Identities?api-version=7.1-preview.1`,
     {

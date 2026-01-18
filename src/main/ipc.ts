@@ -16,6 +16,7 @@ import {
   listProjectUsers,
   listWorkItems,
   searchIdentities,
+  searchUsers,
   testConnection,
   updateWorkItem,
 } from "./ado-client";
@@ -60,6 +61,11 @@ export function registerIpcHandlers() {
 
   ipcMain.handle("ado:identities:getCurrentUser", async () => {
     return getCurrentUser();
+  });
+
+  // User handlers
+  ipcMain.handle("ado:users:search", async (_, query: string) => {
+    return searchUsers(query);
   });
 
   // Work item handlers

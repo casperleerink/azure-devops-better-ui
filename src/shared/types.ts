@@ -61,6 +61,13 @@ export type Identity = {
   imageUrl?: string;
 };
 
+export type UserSearchResult = {
+  id: string;
+  displayName: string;
+  uniqueName: string;
+  imageUrl?: string;
+};
+
 export type WorkItemTypeState = {
   name: string;
   color: string;
@@ -98,6 +105,9 @@ export type IpcChannels = {
   "ado:identities:search": (query: string) => Promise<Identity[]>;
   "ado:identities:listProjectUsers": () => Promise<Identity[]>;
   "ado:identities:getCurrentUser": () => Promise<Identity>;
+
+  // Users
+  "ado:users:search": (query: string) => Promise<UserSearchResult[]>;
 
   // Work Items
   "ado:workItems:list": (filters: WorkItemListFilters) => Promise<WorkItemSummary[]>;

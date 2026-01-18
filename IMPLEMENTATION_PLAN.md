@@ -22,10 +22,10 @@
 
 ### Phase 2: IPC & Backend for User Search
 
-- [ ] [HIGH] Add `UserSearchResult` type to `src/shared/types.ts` - from spec 003
-- [ ] [HIGH] Add `searchUsers` method to `src/main/ado-client.ts` using Azure DevOps identities API - from spec 003
-- [ ] [HIGH] Add `ado:users:search` IPC handler in `src/main/ipc.ts` - from spec 003
-- [ ] [HIGH] Expose `users.search` in preload API (`src/preload/index.ts`) - from spec 003
+- [x] [HIGH] Add `UserSearchResult` type to `src/shared/types.ts` - from spec 003
+- [x] [HIGH] Add `searchUsers` method to `src/main/ado-client.ts` using Azure DevOps identities API - from spec 003
+- [x] [HIGH] Add `ado:users:search` IPC handler in `src/main/ipc.ts` - from spec 003
+- [x] [HIGH] Expose `users.search` in preload API (`src/preload/index.ts`) - from spec 003
 
 ### Phase 3: Auto-Save Hook & Field Mutations
 
