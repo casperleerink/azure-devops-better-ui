@@ -1,8 +1,7 @@
-import type { Iteration, WorkItemDetail, WorkItemTypeState } from "@shared/types";
+import type { Iteration, UserSearchResult, WorkItemDetail, WorkItemTypeState } from "@shared/types";
 import { useQuery } from "@tanstack/react-query";
 import { Calendar, Check, ChevronsUpDown, CircleDot, Folder, GitBranch, User } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { CardRow, CardRowLabel } from "@/components/ui/card";
 import {
@@ -17,6 +16,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { SaveIndicator } from "@/components/ui/save-indicator";
 import { useFieldMutation } from "@/hooks/useFieldMutation";
 import { cn } from "@/lib/utils";
+import { AssigneeCombobox } from "./AssigneeCombobox";
 import { StateSelect } from "./StateSelect";
 
 interface DetailsGridProps {
@@ -27,11 +27,13 @@ interface DetailsGridProps {
 export function DetailsGrid({ workItem, states }: DetailsGridProps) {
   const [localState, setLocalState] = useState(workItem.state);
   const [localIteration, setLocalIteration] = useState(workItem.iterationPath || "");
+  const [localAssignee, setLocalAssignee] = useState(workItem.assignedTo);
   const [iterationOpen, setIterationOpen] = useState(false);
 
   // Auto-save mutations
   const stateMutation = useFieldMutation(workItem.id, "state");
   const iterationMutation = useFieldMutation(workItem.id, "iterationPath");
+  const assigneeMutation = useFieldMutation(workItem.id, "assignedTo");
 
   // Fetch iterations for the picker
   const { data: iterations = [] } = useQuery({
@@ -44,7 +46,8 @@ export function DetailsGrid({ workItem, states }: DetailsGridProps) {
   useEffect(() => {
     setLocalState(workItem.state);
     setLocalIteration(workItem.iterationPath || "");
-  }, [workItem.state, workItem.iterationPath]);
+    setLocalAssignee(workItem.assignedTo);
+  }, [workItem.state, workItem.iterationPath, workItem.assignedTo]);
 
   const handleStateChange = (newState: string) => {
     setLocalState(newState);
@@ -58,6 +61,16 @@ export function DetailsGrid({ workItem, states }: DetailsGridProps) {
     iterationMutation.mutate(newPath);
   };
 
+  const handleAssigneeChange = (user: UserSearchResult | null) => {
+    if (user) {
+      setLocalAssignee({ displayName: user.displayName, uniqueName: user.uniqueName });
+      assigneeMutation.mutate(user.uniqueName);
+    } else {
+      setLocalAssignee(undefined);
+      assigneeMutation.mutate("");
+    }
+  };
+
   const selectedIteration = iterations.find((i) => i.path === localIteration);
 
   return (
@@ -65,14 +78,15 @@ export function DetailsGrid({ workItem, states }: DetailsGridProps) {
       <CardRow>
         <CardRowLabel icon={<User />} label="Assigned To" />
         <div className="flex items-center gap-2">
-          {workItem.assignedTo ? (
-            <>
-              <Avatar size="sm" fallback={workItem.assignedTo.displayName} />
-              <span className="text-sm text-alpha">{workItem.assignedTo.displayName}</span>
-            </>
-          ) : (
-            <span className="text-sm text-gray-600">Unassigned</span>
-          )}
+          <AssigneeCombobox
+            value={localAssignee}
+            onChange={handleAssigneeChange}
+            disabled={assigneeMutation.isPending}
+          />
+          <SaveIndicator
+            isPending={assigneeMutation.isPending}
+            isSuccess={assigneeMutation.isSuccess}
+          />
         </div>
       </CardRow>
       <CardRow>

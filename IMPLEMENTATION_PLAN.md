@@ -36,9 +36,9 @@
 
 ### Phase 4: Assignee Combobox
 
-- [ ] [HIGH] Create `AssigneeCombobox` component with user search (`src/renderer/components/work-item-detail/AssigneeCombobox.tsx`) - from spec 003
-- [ ] [HIGH] Integrate `AssigneeCombobox` in `DetailsGrid.tsx` replacing static assignee display - from spec 003
-- [ ] [HIGH] Wire up auto-save on assignee selection - from spec 003
+- [x] [HIGH] Create `AssigneeCombobox` component with user search (`src/renderer/components/work-item-detail/AssigneeCombobox.tsx`) - from spec 003
+- [x] [HIGH] Integrate `AssigneeCombobox` in `DetailsGrid.tsx` replacing static assignee display - from spec 003
+- [x] [HIGH] Wire up auto-save on assignee selection - from spec 003
 
 ### Phase 5: Tiptap Description Editor
 
@@ -92,7 +92,7 @@
 ```
 src/renderer/components/ui/save-indicator.tsx                   (DONE)
 src/renderer/hooks/useFieldMutation.ts                          (DONE)
-src/renderer/components/work-item-detail/AssigneeCombobox.tsx
+src/renderer/components/work-item-detail/AssigneeCombobox.tsx   (DONE)
 src/renderer/components/work-item-detail/DescriptionEditor.tsx
 src/renderer/components/work-item-detail/EditorToolbar.tsx
 ```
