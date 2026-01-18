@@ -1,6 +1,6 @@
 # Testing Setup with Vitest
 
-status: pending
+status: complete
 
 ## Description
 
@@ -8,17 +8,17 @@ Set up a comprehensive testing infrastructure using Vitest and electron-vitest. 
 
 ## Acceptance Criteria
 
-- [ ] Vitest and electron-vitest are installed and configured
-- [ ] MSW (Mock Service Worker) is installed for HTTP mocking
-- [ ] `vitest.config.ts` is configured for electron-vitest
-- [ ] Test files are colocated with source (`*.test.ts` pattern)
-- [ ] Coverage reporting is enabled (no enforced threshold)
-- [ ] `bun run test` script runs all tests
-- [ ] `bun run test:coverage` script runs tests with coverage report
-- [ ] Example unit tests exist for `src/main/ado-client.ts`
-- [ ] MSW handlers mock Azure DevOps API responses for tests
-- [ ] TypeScript includes test files in type checking
-- [ ] All existing lint and typecheck commands pass
+- [x] Vitest and electron-vitest are installed and configured
+- [x] MSW (Mock Service Worker) is installed for HTTP mocking
+- [x] `vitest.config.ts` is configured for electron-vitest
+- [x] Test files are colocated with source (`*.test.ts` pattern)
+- [x] Coverage reporting is enabled (no enforced threshold)
+- [x] `bun run test` script runs all tests
+- [x] `bun run test:coverage` script runs tests with coverage report
+- [x] Example unit tests exist for `src/main/ado-client.ts`
+- [x] MSW handlers mock Azure DevOps API responses for tests
+- [x] TypeScript includes test files in type checking
+- [x] All existing lint and typecheck commands pass
 
 ## Technical Notes
 
