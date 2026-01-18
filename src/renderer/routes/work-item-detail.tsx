@@ -1,17 +1,16 @@
-import type { WorkItemUpdatePatch } from "@shared/types";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Link, useParams } from "@tanstack/react-router";
 import { AlertCircle, ArrowLeft, FileX } from "lucide-react";
 import { useEffect, useState } from "react";
 import { BareInput } from "@/components/ui/input";
 import { SaveIndicator } from "@/components/ui/save-indicator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { DescriptionSection, DetailHeader, DetailsGrid } from "@/components/work-item-detail";
+import { DetailHeader, DetailsGrid } from "@/components/work-item-detail";
+import { DescriptionEditor } from "@/components/work-item-detail/DescriptionEditor";
 import { useFieldMutation } from "@/hooks/useFieldMutation";
 
 export function WorkItemDetailPage() {
   const { id } = useParams({ from: "/work-items/$id" });
-  const queryClient = useQueryClient();
   const workItemId = parseInt(id, 10);
 
   const {
@@ -31,39 +30,18 @@ export function WorkItemDetailPage() {
   });
 
   const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [isEditingDescription, setIsEditingDescription] = useState(false);
 
   // Auto-save mutation for title field
   const titleMutation = useFieldMutation(workItemId, "title");
 
+  // Auto-save mutation for description field
+  const descriptionMutation = useFieldMutation(workItemId, "description");
+
   useEffect(() => {
     if (workItem) {
       setTitle(workItem.title);
-      setDescription(workItem.descriptionHtml || "");
     }
   }, [workItem]);
-
-  const updateMutation = useMutation({
-    mutationFn: (patch: WorkItemUpdatePatch) => window.ado.workItems.update(workItemId, patch),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["workItem", workItemId] });
-      queryClient.invalidateQueries({ queryKey: ["workItems"] });
-    },
-  });
-
-  const handleSave = () => {
-    const patch: WorkItemUpdatePatch = {};
-    // Title and state auto-save independently, only description uses global save for now
-    if (description !== workItem?.descriptionHtml) patch.description = description;
-
-    if (Object.keys(patch).length > 0) {
-      updateMutation.mutate(patch);
-    }
-  };
-
-  // Title and state auto-save independently, so only description uses global "has changes"
-  const hasChanges = workItem && description !== (workItem.descriptionHtml || "");
 
   if (isLoading) {
     return (
@@ -141,11 +119,11 @@ export function WorkItemDetailPage() {
       <DetailHeader
         workItemId={workItem.id}
         type={workItem.type}
-        hasChanges={!!hasChanges}
-        isSaving={updateMutation.isPending}
-        saveSuccess={updateMutation.isSuccess}
-        saveError={updateMutation.isError ? (updateMutation.error as Error) : null}
-        onSave={handleSave}
+        hasChanges={false}
+        isSaving={false}
+        saveSuccess={false}
+        saveError={null}
+        onSave={() => {}}
       />
 
       <div className="p-8">
@@ -173,12 +151,14 @@ export function WorkItemDetailPage() {
 
           <DetailsGrid workItem={workItem} states={states} />
 
-          <DescriptionSection
-            description={description}
-            isEditing={isEditingDescription}
-            onDescriptionChange={setDescription}
-            onToggleEdit={() => setIsEditingDescription(!isEditingDescription)}
-          />
+          <div className="mt-8">
+            <DescriptionEditor
+              initialHtml={workItem.descriptionHtml || ""}
+              onSave={(html) => descriptionMutation.mutate(html)}
+              isPending={descriptionMutation.isPending}
+              isSuccess={descriptionMutation.isSuccess}
+            />
+          </div>
         </div>
       </div>
     </div>

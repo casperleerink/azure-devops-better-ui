@@ -44,8 +44,8 @@
 
 - [x] [HIGH] Create `EditorToolbar` component (bold, italic, H1-H3, lists, links) - from spec 003
 - [x] [HIGH] Create `DescriptionEditor` component with Tiptap integration - from spec 003
-- [ ] [HIGH] Replace `BareTextarea` in `DescriptionSection.tsx` with Tiptap editor - from spec 003
-- [ ] [HIGH] Add dedicated save button at bottom of description section - from spec 003
+- [x] [HIGH] Replace `BareTextarea` in `DescriptionSection.tsx` with Tiptap editor - from spec 003
+- [x] [HIGH] Add dedicated save button at bottom of description section - from spec 003
 
 ### Phase 6: Header & Cleanup
 
