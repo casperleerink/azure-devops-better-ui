@@ -55,7 +55,7 @@ Run the project's test suite and verify:
 
 ## Completion Signal
 
-**CRITICAL:** Only output the magic phrase when all the tasks are 100% complete.
+**CRITICAL:** Only output the magic phrase when all the tasks in the implementation plan are 100% complete.
 
 Check:
 - [ ] Implementation matches all requirements

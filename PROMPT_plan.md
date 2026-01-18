@@ -31,7 +31,7 @@ Create `IMPLEMENTATION_PLAN.md` with a prioritized task list:
 ```markdown
 # Implementation Plan
 
-> Auto-generated breakdown of specs into tasks.
+> Auto-generated breakdown of spec into tasks.
 > Delete this file to return to working directly from specs.
 
 ## Priority Tasks
