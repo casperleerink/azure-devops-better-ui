@@ -47,13 +47,39 @@ export function WorkItemDetailPage() {
     return (
       <div className="h-full bg-gray-50">
         <div className="border-b border-alpha/5 bg-gray-50 px-6 py-4">
-          <Skeleton className="h-6 w-32" />
+          <div className="flex items-center gap-4">
+            <Skeleton className="h-8 w-20" />
+            <div className="h-6 w-px bg-alpha/5" />
+            <Skeleton className="h-6 w-32" />
+          </div>
         </div>
-        <div className="p-6">
-          <div className="max-w-4xl">
-            <Skeleton className="h-8 w-3/4 mb-6" />
-            <Skeleton className="h-32 w-full mb-6" />
-            <Skeleton className="h-24 w-full" />
+        <div className="p-8">
+          <div className="max-w-5xl mx-auto">
+            <div className="mb-8">
+              <Skeleton className="h-12 w-3/4" />
+            </div>
+            <div className="rounded-xl border border-alpha/5 bg-gray-100 mb-6">
+              <div className="flex items-center justify-between p-4 border-b border-alpha/5 last:border-b-0">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-8 w-48" />
+              </div>
+              <div className="flex items-center justify-between p-4 border-b border-alpha/5 last:border-b-0">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-8 w-32" />
+              </div>
+              <div className="flex items-center justify-between p-4 border-b border-alpha/5 last:border-b-0">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-4 w-40" />
+              </div>
+              <div className="flex items-center justify-between p-4 border-b border-alpha/5 last:border-b-0">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-8 w-40" />
+              </div>
+            </div>
+            <div className="mt-8">
+              <Skeleton className="h-4 w-24 mb-3" />
+              <Skeleton className="h-48 w-full rounded-lg" />
+            </div>
           </div>
         </div>
       </div>

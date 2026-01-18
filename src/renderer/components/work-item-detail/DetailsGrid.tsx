@@ -74,7 +74,7 @@ export function DetailsGrid({ workItem, states }: DetailsGridProps) {
   const selectedIteration = iterations.find((i) => i.path === localIteration);
 
   return (
-    <div className="rounded-xl border border-alpha/5 bg-gray-100 mb-6">
+    <div className="rounded-xl border border-alpha/5 bg-gray-100 mb-6 [&>:first-child]:border-t-0">
       <CardRow>
         <CardRowLabel icon={<User />} label="Assigned To" />
         <div className="flex items-center gap-2">
