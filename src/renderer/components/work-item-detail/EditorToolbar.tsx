@@ -22,31 +22,31 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
   }
 
   const toggleBold = () => {
-    (editor.chain().focus() as any).toggleBold().run();
+    editor.chain().focus().toggleBold().run();
   };
 
   const toggleItalic = () => {
-    (editor.chain().focus() as any).toggleItalic().run();
+    editor.chain().focus().toggleItalic().run();
   };
 
   const toggleHeading1 = () => {
-    (editor.chain().focus() as any).toggleHeading({ level: 1 }).run();
+    editor.chain().focus().toggleHeading({ level: 1 }).run();
   };
 
   const toggleHeading2 = () => {
-    (editor.chain().focus() as any).toggleHeading({ level: 2 }).run();
+    editor.chain().focus().toggleHeading({ level: 2 }).run();
   };
 
   const toggleHeading3 = () => {
-    (editor.chain().focus() as any).toggleHeading({ level: 3 }).run();
+    editor.chain().focus().toggleHeading({ level: 3 }).run();
   };
 
   const toggleBulletList = () => {
-    (editor.chain().focus() as any).toggleBulletList().run();
+    editor.chain().focus().toggleBulletList().run();
   };
 
   const toggleOrderedList = () => {
-    (editor.chain().focus() as any).toggleOrderedList().run();
+    editor.chain().focus().toggleOrderedList().run();
   };
 
   const toggleLink = () => {
@@ -58,11 +58,11 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
     }
 
     if (url === "") {
-      (editor.chain().focus().extendMarkRange("link") as any).unsetLink().run();
+      editor.chain().focus().extendMarkRange("link").unsetLink().run();
       return;
     }
 
-    (editor.chain().focus().extendMarkRange("link") as any).setLink({ href: url }).run();
+    editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
   };
 
   return (
