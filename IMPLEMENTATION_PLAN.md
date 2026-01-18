@@ -17,8 +17,8 @@
 
 ### Phase 1: Infrastructure & Dependencies
 
-- [ ] [HIGH] Install Tiptap dependencies (`@tiptap/react`, `@tiptap/starter-kit`, `@tiptap/extension-link`) - from spec 003
-- [ ] [HIGH] Create `SaveIndicator` component (`src/renderer/components/ui/save-indicator.tsx`) - from spec 003
+- [x] [HIGH] Install Tiptap dependencies (`@tiptap/react`, `@tiptap/starter-kit`, `@tiptap/extension-link`) - from spec 003
+- [x] [HIGH] Create `SaveIndicator` component (`src/renderer/components/ui/save-indicator.tsx`) - from spec 003
 
 ### Phase 2: IPC & Backend for User Search
 
