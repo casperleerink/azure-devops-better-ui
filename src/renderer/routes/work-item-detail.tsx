@@ -116,15 +116,7 @@ export function WorkItemDetailPage() {
 
   return (
     <div className="h-full bg-gray-50 overflow-auto">
-      <DetailHeader
-        workItemId={workItem.id}
-        type={workItem.type}
-        hasChanges={false}
-        isSaving={false}
-        saveSuccess={false}
-        saveError={null}
-        onSave={() => {}}
-      />
+      <DetailHeader workItemId={workItem.id} type={workItem.type} />
 
       <div className="p-8">
         <div className="max-w-5xl mx-auto">
