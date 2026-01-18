@@ -49,9 +49,9 @@
 
 ### Phase 6: Header & Cleanup
 
-- [ ] [MEDIUM] Remove global "Save Changes" button from `DetailHeader.tsx` - from spec 003
-- [ ] [MEDIUM] Fix header badge to contain icon inside (not as sibling) in `DetailHeader.tsx` - from spec 003
-- [ ] [MEDIUM] Update back button to use `Button` component with `variant="subtle"` - from spec 003
+- [x] [MEDIUM] Remove global "Save Changes" button from `DetailHeader.tsx` - from spec 003
+- [x] [MEDIUM] Fix header badge to contain icon inside (not as sibling) in `DetailHeader.tsx` - from spec 003
+- [x] [MEDIUM] Update back button to use `Button` component with `variant="subtle"` - from spec 003
 
 ### Phase 7: Polish
 
