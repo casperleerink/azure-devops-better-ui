@@ -4,8 +4,10 @@ import { Link, useParams } from "@tanstack/react-router";
 import { AlertCircle, ArrowLeft, FileX } from "lucide-react";
 import { useEffect, useState } from "react";
 import { BareInput } from "@/components/ui/input";
+import { SaveIndicator } from "@/components/ui/save-indicator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DescriptionSection, DetailHeader, DetailsGrid } from "@/components/work-item-detail";
+import { useFieldMutation } from "@/hooks/useFieldMutation";
 
 export function WorkItemDetailPage() {
   const { id } = useParams({ from: "/work-items/$id" });
@@ -30,14 +32,15 @@ export function WorkItemDetailPage() {
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [state, setState] = useState("");
   const [isEditingDescription, setIsEditingDescription] = useState(false);
+
+  // Auto-save mutation for title field
+  const titleMutation = useFieldMutation(workItemId, "title");
 
   useEffect(() => {
     if (workItem) {
       setTitle(workItem.title);
       setDescription(workItem.descriptionHtml || "");
-      setState(workItem.state);
     }
   }, [workItem]);
 
@@ -51,20 +54,16 @@ export function WorkItemDetailPage() {
 
   const handleSave = () => {
     const patch: WorkItemUpdatePatch = {};
-    if (title !== workItem?.title) patch.title = title;
+    // Title and state auto-save independently, only description uses global save for now
     if (description !== workItem?.descriptionHtml) patch.description = description;
-    if (state !== workItem?.state) patch.state = state;
 
     if (Object.keys(patch).length > 0) {
       updateMutation.mutate(patch);
     }
   };
 
-  const hasChanges =
-    workItem &&
-    (title !== workItem.title ||
-      description !== (workItem.descriptionHtml || "") ||
-      state !== workItem.state);
+  // Title and state auto-save independently, so only description uses global "has changes"
+  const hasChanges = workItem && description !== (workItem.descriptionHtml || "");
 
   if (isLoading) {
     return (
@@ -152,15 +151,27 @@ export function WorkItemDetailPage() {
       <div className="p-8">
         <div className="max-w-5xl mx-auto">
           <div className="mb-8">
-            <BareInput
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="text-3xl font-semibold text-alpha w-full"
-              placeholder="Enter title..."
-            />
+            <div className="flex items-center gap-2">
+              <BareInput
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                onBlur={() => {
+                  if (title !== workItem.title) {
+                    titleMutation.mutate(title);
+                  }
+                }}
+                disabled={titleMutation.isPending}
+                className="text-3xl font-semibold text-alpha w-full"
+                placeholder="Enter title..."
+              />
+              <SaveIndicator
+                isPending={titleMutation.isPending}
+                isSuccess={titleMutation.isSuccess}
+              />
+            </div>
           </div>
 
-          <DetailsGrid workItem={workItem} state={state} states={states} onStateChange={setState} />
+          <DetailsGrid workItem={workItem} states={states} />
 
           <DescriptionSection
             description={description}

@@ -5,13 +5,14 @@ interface StateSelectProps {
   value: string;
   states: WorkItemTypeState[];
   onChange: (value: string) => void;
+  disabled?: boolean;
 }
 
-export function StateSelect({ value, states, onChange }: StateSelectProps) {
+export function StateSelect({ value, states, onChange, disabled }: StateSelectProps) {
   const currentState = states.find((s) => s.name === value);
 
   return (
-    <Select value={value} onValueChange={onChange}>
+    <Select value={value} onValueChange={onChange} disabled={disabled}>
       <SelectTrigger className="h-8 px-3 border border-alpha/10 rounded-lg gap-1.5 text-sm font-medium w-auto min-w-32">
         <div className="flex items-center gap-1.5">
           <div

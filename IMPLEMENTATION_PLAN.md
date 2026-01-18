@@ -29,10 +29,10 @@
 
 ### Phase 3: Auto-Save Hook & Field Mutations
 
-- [ ] [HIGH] Create `useFieldMutation` hook for individual field auto-save pattern - from spec 003
-- [ ] [HIGH] Refactor title field in `work-item-detail.tsx` to auto-save on blur - from spec 003
-- [ ] [HIGH] Refactor state dropdown in `DetailsGrid.tsx` to auto-save immediately on change - from spec 003
-- [ ] [HIGH] Update iteration picker in `DetailsGrid.tsx` to auto-save on selection - from spec 003
+- [x] [HIGH] Create `useFieldMutation` hook for individual field auto-save pattern - from spec 003
+- [x] [HIGH] Refactor title field in `work-item-detail.tsx` to auto-save on blur - from spec 003
+- [x] [HIGH] Refactor state dropdown in `DetailsGrid.tsx` to auto-save immediately on change - from spec 003
+- [x] [HIGH] Update iteration picker in `DetailsGrid.tsx` to auto-save on selection - from spec 003
 
 ### Phase 4: Assignee Combobox
 
@@ -90,7 +90,8 @@
 ## Files to Create
 
 ```
-src/renderer/components/ui/save-indicator.tsx
+src/renderer/components/ui/save-indicator.tsx                   (DONE)
+src/renderer/hooks/useFieldMutation.ts                          (DONE)
 src/renderer/components/work-item-detail/AssigneeCombobox.tsx
 src/renderer/components/work-item-detail/DescriptionEditor.tsx
 src/renderer/components/work-item-detail/EditorToolbar.tsx
