@@ -13,9 +13,9 @@
 
 ### Frontend Core Components
 - [x] [HIGH] Create reusable `StateCell` and `AssigneeCell` components in `src/renderer/components/work-items/table-cells.tsx` - from spec 004
-- [ ] [HIGH] Create `ChildWorkItemsSection` component with table, loading states, and empty state - from spec 004
-- [ ] [HIGH] Implement child type detection logic (Epic→Feature→User Story→Task) in ChildWorkItemsSection - from spec 004
-- [ ] [HIGH] Integrate `ChildWorkItemsSection` into work item detail page - from spec 004
+- [x] [HIGH] Create `ChildWorkItemsSection` component with table, loading states, and empty state - from spec 004
+- [x] [HIGH] Implement child type detection logic (Epic→Feature→User Story→Task) in ChildWorkItemsSection - from spec 004
+- [x] [HIGH] Integrate `ChildWorkItemsSection` into work item detail page - from spec 004
 
 ### Quick Create Feature
 - [ ] [MEDIUM] Update `CreateWorkItemDialog` to accept `defaultValues` prop (type, parentId) - from spec 004

@@ -6,6 +6,7 @@ import { BareInput } from "@/components/ui/input";
 import { SaveIndicator } from "@/components/ui/save-indicator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DetailHeader, DetailsGrid } from "@/components/work-item-detail";
+import { ChildWorkItemsSection } from "@/components/work-item-detail/ChildWorkItemsSection";
 import { DescriptionEditor } from "@/components/work-item-detail/DescriptionEditor";
 import { useFieldMutation } from "@/hooks/useFieldMutation";
 
@@ -177,6 +178,8 @@ export function WorkItemDetailPage() {
               isSuccess={descriptionMutation.isSuccess}
             />
           </div>
+
+          <ChildWorkItemsSection parentId={workItem.id} parentType={workItem.type} />
         </div>
       </div>
     </div>
