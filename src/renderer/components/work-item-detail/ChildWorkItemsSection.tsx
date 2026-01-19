@@ -2,8 +2,10 @@ import type { WorkItemType } from "@shared/types";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { CreateWorkItemDialog } from "@/components/work-items/CreateWorkItemDialog";
 import { AssigneeCell, StateCell } from "@/components/work-items/table-cells";
 import { getTypeIcon } from "@/lib/work-item-utils";
 
@@ -27,6 +29,7 @@ interface ChildWorkItemsSectionProps {
 
 export function ChildWorkItemsSection({ parentId, parentType }: ChildWorkItemsSectionProps) {
   const childType = getChildType(parentType);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
   const { data: children = [], isLoading } = useQuery({
     queryKey: ["workItems", "children", parentId],
@@ -71,7 +74,7 @@ export function ChildWorkItemsSection({ parentId, parentType }: ChildWorkItemsSe
           {pluralType} ({children.length})
         </h2>
         {children.length > 0 && (
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={() => setCreateDialogOpen(true)}>
             <Plus className="size-4" />
             Create {childType}
           </Button>
@@ -81,7 +84,7 @@ export function ChildWorkItemsSection({ parentId, parentType }: ChildWorkItemsSe
       {children.length === 0 ? (
         <div className="rounded-xl border border-alpha/5 bg-gray-100 p-8 text-center">
           <p className="text-gray-500 mb-4">No {pluralType.toLowerCase()} yet</p>
-          <Button variant="primary" size="sm">
+          <Button variant="primary" size="sm" onClick={() => setCreateDialogOpen(true)}>
             <Plus className="size-4" />
             Create {childType}
           </Button>
@@ -128,6 +131,15 @@ export function ChildWorkItemsSection({ parentId, parentType }: ChildWorkItemsSe
           </table>
         </div>
       )}
+
+      <CreateWorkItemDialog
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
+        defaultValues={{
+          type: childType,
+          parentId: parentId,
+        }}
+      />
     </div>
   );
 }

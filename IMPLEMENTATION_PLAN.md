@@ -18,11 +18,11 @@
 - [x] [HIGH] Integrate `ChildWorkItemsSection` into work item detail page - from spec 004
 
 ### Quick Create Feature
-- [ ] [MEDIUM] Update `CreateWorkItemDialog` to accept `defaultValues` prop (type, parentId) - from spec 004
-- [ ] [MEDIUM] Update `CreateWorkItemDialog` to support controlled open/onOpenChange props - from spec 004
-- [ ] [MEDIUM] Add parent work item fetch and form pre-fill logic to CreateWorkItemDialog - from spec 004
-- [ ] [MEDIUM] Wire up "Create [Type]" buttons in ChildWorkItemsSection to CreateWorkItemDialog - from spec 004
-- [ ] [MEDIUM] Add query invalidation after successful child creation to refresh list - from spec 004
+- [x] [MEDIUM] Update `CreateWorkItemDialog` to accept `defaultValues` prop (type, parentId) - from spec 004
+- [x] [MEDIUM] Update `CreateWorkItemDialog` to support controlled open/onOpenChange props - from spec 004
+- [x] [MEDIUM] Add parent work item fetch and form pre-fill logic to CreateWorkItemDialog - from spec 004
+- [x] [MEDIUM] Wire up "Create [Type]" buttons in ChildWorkItemsSection to CreateWorkItemDialog - from spec 004
+- [x] [MEDIUM] Add query invalidation after successful child creation to refresh list - from spec 004
 
 ### Polish
 - [ ] [LOW] Test all work item type hierarchies (Epic, Feature, User Story, Task) - from spec 004

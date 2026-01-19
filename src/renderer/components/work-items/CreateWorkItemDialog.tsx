@@ -65,12 +65,25 @@ function getParentType(type: WorkItemType): WorkItemType | null {
 const EXCLUDED_STATES = ["Closed", "Done", "Removed", "Resolved"];
 
 interface CreateWorkItemDialogProps {
-  trigger: React.ReactNode;
+  trigger?: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  defaultValues?: {
+    type?: WorkItemType;
+    parentId?: number;
+  };
 }
 
-export function CreateWorkItemDialog({ trigger }: CreateWorkItemDialogProps) {
+export function CreateWorkItemDialog({
+  trigger,
+  open: controlledOpen,
+  onOpenChange,
+  defaultValues,
+}: CreateWorkItemDialogProps) {
   const queryClient = useQueryClient();
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = onOpenChange !== undefined ? onOpenChange : setInternalOpen;
   const [iterationOpen, setIterationOpen] = useState(false);
   const [parentOpen, setParentOpen] = useState(false);
   const [areaPathOpen, setAreaPathOpen] = useState(false);
@@ -88,7 +101,7 @@ export function CreateWorkItemDialog({ trigger }: CreateWorkItemDialogProps) {
 
   const form = useForm({
     defaultValues: {
-      type: "Task" as WorkItemType,
+      type: (defaultValues?.type ?? "Task") as WorkItemType,
       title: "",
       description: "",
       iteration: null as Iteration | null,
@@ -133,6 +146,14 @@ export function CreateWorkItemDialog({ trigger }: CreateWorkItemDialogProps) {
     staleTime: 1000 * 60 * 5,
   });
 
+  // Fetch parent work item if defaultValues.parentId is provided
+  const { data: parentWorkItem } = useQuery({
+    queryKey: ["workItem", defaultValues?.parentId],
+    queryFn: () => window.ado.workItems.get(defaultValues!.parentId!),
+    enabled: !!defaultValues?.parentId,
+    staleTime: 1000 * 60 * 5,
+  });
+
   // Set default area path from config when dialog opens
   useEffect(() => {
     if (open && config?.defaultAreaPath && areaPaths) {
@@ -142,6 +163,19 @@ export function CreateWorkItemDialog({ trigger }: CreateWorkItemDialogProps) {
       }
     }
   }, [open, config?.defaultAreaPath, areaPaths, form]);
+
+  // Set parent work item from defaultValues when available
+  useEffect(() => {
+    if (open && parentWorkItem) {
+      form.setFieldValue("parent", {
+        id: parentWorkItem.id,
+        title: parentWorkItem.title,
+        type: parentWorkItem.type,
+        state: parentWorkItem.state,
+        assignedTo: parentWorkItem.assignedTo,
+      } as WorkItemSummary);
+    }
+  }, [open, parentWorkItem, form]);
 
   // Fetch potential parent work items (filtered by default area path if set)
   const { data: potentialParents, isLoading: parentsLoading } = useQuery({
@@ -168,7 +202,7 @@ export function CreateWorkItemDialog({ trigger }: CreateWorkItemDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
+      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent className="sm:max-w-[640px]">
         <form
           onSubmit={(e) => {
