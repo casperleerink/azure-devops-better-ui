@@ -127,6 +127,7 @@ export type IpcChannels = {
   "ado:workItems:create": (payload: WorkItemCreatePayload) => Promise<WorkItemDetail>;
   "ado:workItems:update": (id: number, patch: WorkItemUpdatePatch) => Promise<WorkItemDetail>;
   "ado:workItems:getTypeStates": (type: WorkItemType) => Promise<WorkItemTypeState[]>;
+  "ado:workItems:listChildren": (parentId: number) => Promise<WorkItemSummary[]>;
 
   // Iterations
   "ado:iterations:list": () => Promise<Iteration[]>;

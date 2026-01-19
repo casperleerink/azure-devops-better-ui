@@ -1,3 +1,4 @@
+import type { z } from "zod";
 import type {
   AdoPatchOperation,
   AreaPath,
@@ -12,19 +13,17 @@ import type {
   WorkItemTypeState,
   WorkItemUpdatePatch,
 } from "../shared/types";
-import { z } from "zod";
 import {
-  type AdoBatchWorkItems,
   AdoBatchWorkItemsSchema,
   type AdoClassificationNode,
   AdoClassificationNodeSchema,
   AdoConnectionDataSchema,
   AdoIdentitySearchResultSchema,
   AdoIterationsSchema,
+  AdoWiqlResultSchema,
   type AdoWorkItem,
   AdoWorkItemSchema,
   AdoWorkItemTypeStatesSchema,
-  AdoWiqlResultSchema,
 } from "./ado-schemas";
 import { getPat } from "./secure-store";
 import { getConfig } from "./store";
@@ -314,6 +313,58 @@ export async function listWorkItems(filters: WorkItemListFilters): Promise<WorkI
   return ids.map((id) => workItemsById.get(id)!).filter(Boolean);
 }
 
+export async function listChildren(parentId: number): Promise<WorkItemSummary[]> {
+  // Query for work items that have the specified parent
+  const query = `SELECT [System.Id] FROM WorkItemLinks WHERE [Source].[System.Id] = ${parentId} AND [System.Links.LinkType] = 'System.LinkTypes.Hierarchy-Forward' ORDER BY [Target].[System.CreatedDate] ASC MODE (MustContain)`;
+
+  // Run WIQL query to get child work item IDs
+  const wiqlResult = await adoFetchValidated("wit/wiql?api-version=7.1", AdoWiqlResultSchema, {
+    method: "POST",
+    body: JSON.stringify({ query }),
+  });
+
+  if (!wiqlResult.workItemRelations || wiqlResult.workItemRelations.length === 0) {
+    return [];
+  }
+
+  // Extract target work item IDs (exclude the source parent)
+  const ids = wiqlResult.workItemRelations.filter((rel) => rel.target).map((rel) => rel.target!.id);
+
+  if (ids.length === 0) {
+    return [];
+  }
+
+  // Batch fetch work items
+  const workItemsById = new Map<number, WorkItemSummary>();
+
+  for (let i = 0; i < ids.length; i += BATCH_SIZE) {
+    const batchIds = ids.slice(i, i + BATCH_SIZE);
+    const idsParam = batchIds.join(",");
+    const fields = [
+      "System.Id",
+      "System.Title",
+      "System.WorkItemType",
+      "System.State",
+      "System.AssignedTo",
+      "System.AreaPath",
+      "System.IterationPath",
+      "System.ChangedDate",
+    ].join(",");
+
+    const batchResult = await adoFetchValidated(
+      `wit/workitems?ids=${idsParam}&fields=${fields}&api-version=7.1`,
+      AdoBatchWorkItemsSchema,
+    );
+
+    for (const item of batchResult.value) {
+      workItemsById.set(item.id, mapWorkItem(item));
+    }
+  }
+
+  // Preserve the original sort order from WIQL query
+  return ids.map((id) => workItemsById.get(id)!).filter(Boolean);
+}
+
 export async function getWorkItem(id: number): Promise<WorkItemDetail> {
   const result = await adoFetchValidated(
     `wit/workitems/${id}?$expand=relations&api-version=7.1`,
@@ -444,17 +495,13 @@ export async function updateWorkItem(
     });
   }
 
-  const result = await adoFetchValidated(
-    `wit/workitems/${id}?api-version=7.1`,
-    AdoWorkItemSchema,
-    {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json-patch+json",
-      },
-      body: JSON.stringify(patchDoc),
+  const result = await adoFetchValidated(`wit/workitems/${id}?api-version=7.1`, AdoWorkItemSchema, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json-patch+json",
     },
-  );
+    body: JSON.stringify(patchDoc),
+  });
 
   return mapWorkItemDetail(result);
 }

@@ -61,7 +61,11 @@ export function UserCombobox({ users }: UserComboboxProps) {
                 />
               </CommandItem>
               {users?.map((user) => (
-                <CommandItem key={user.id} onSelect={() => handleSelect(user)} className="justify-between">
+                <CommandItem
+                  key={user.id}
+                  onSelect={() => handleSelect(user)}
+                  className="justify-between"
+                >
                   <div className="flex items-center gap-2 truncate">
                     <Avatar size="sm" fallback={user.displayName} image={user.imageUrl} />
                     <span className="truncate">{user.displayName}</span>

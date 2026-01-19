@@ -66,6 +66,14 @@ export const AdoWiqlResultSchema = z.object({
       id: z.number(),
     }),
   ),
+  workItemRelations: z
+    .array(
+      z.object({
+        source: z.object({ id: z.number() }).nullable().optional(),
+        target: z.object({ id: z.number() }).nullable().optional(),
+      }),
+    )
+    .optional(),
 });
 
 export type AdoWiqlResult = z.infer<typeof AdoWiqlResultSchema>;

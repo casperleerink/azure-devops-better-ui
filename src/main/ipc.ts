@@ -12,6 +12,7 @@ import {
   getWorkItem,
   getWorkItemTypeStates,
   listAreaPaths,
+  listChildren,
   listIterations,
   listProjectUsers,
   listWorkItems,
@@ -87,6 +88,10 @@ export function registerIpcHandlers() {
 
   ipcMain.handle("ado:workItems:getTypeStates", async (_, type: WorkItemType) => {
     return getWorkItemTypeStates(type);
+  });
+
+  ipcMain.handle("ado:workItems:listChildren", async (_, parentId: number) => {
+    return listChildren(parentId);
   });
 
   // Iteration handlers
