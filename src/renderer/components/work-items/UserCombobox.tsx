@@ -1,6 +1,7 @@
 import type { Identity } from "@shared/types";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { useState } from "react";
+import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -41,32 +42,38 @@ export function UserCombobox({ users }: UserComboboxProps) {
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-56 p-0" align="start">
+      <PopoverContent className="w-64 p-0" align="start">
         <Command>
           <CommandInput placeholder="Search users..." />
           <CommandList>
             <CommandEmpty>No users found.</CommandEmpty>
             <CommandGroup>
-              <CommandItem onSelect={() => handleSelect("me")}>
+              <CommandItem onSelect={() => handleSelect("me")} className="justify-between">
+                <div className="flex items-center gap-2">
+                  <Avatar size="sm" fallback="Me" />
+                  <span>Me</span>
+                </div>
                 <Check
                   className={cn(
-                    "mr-2 h-4 w-4",
+                    "h-4 w-4 shrink-0",
                     selectedUser === "me" ? "opacity-100" : "opacity-0",
                   )}
                 />
-                Me
               </CommandItem>
               {users?.map((user) => (
-                <CommandItem key={user.id} onSelect={() => handleSelect(user)}>
+                <CommandItem key={user.id} onSelect={() => handleSelect(user)} className="justify-between">
+                  <div className="flex items-center gap-2 truncate">
+                    <Avatar size="sm" fallback={user.displayName} image={user.imageUrl} />
+                    <span className="truncate">{user.displayName}</span>
+                  </div>
                   <Check
                     className={cn(
-                      "mr-2 h-4 w-4",
+                      "h-4 w-4 shrink-0",
                       selectedUser !== "me" && selectedUser !== null && selectedUser.id === user.id
                         ? "opacity-100"
                         : "opacity-0",
                     )}
                   />
-                  {user.displayName}
                 </CommandItem>
               ))}
             </CommandGroup>

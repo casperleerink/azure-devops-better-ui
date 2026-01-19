@@ -1,7 +1,7 @@
-import type { UserSearchResult } from "@shared/types";
+import type { Identity } from "@shared/types";
 import { useQuery } from "@tanstack/react-query";
 import { Check, ChevronsUpDown, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,32 +17,33 @@ import { cn } from "@/lib/utils";
 
 interface AssigneeComboboxProps {
   value: { displayName: string; uniqueName?: string } | undefined;
-  onChange: (user: UserSearchResult | null) => void;
+  onChange: (user: Identity | null) => void;
   disabled?: boolean;
 }
 
 export function AssigneeCombobox({ value, onChange, disabled }: AssigneeComboboxProps) {
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [debouncedQuery, setDebouncedQuery] = useState("");
 
-  // Debounce search query
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedQuery(searchQuery);
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
-
-  // Search users when query changes
-  const { data: users = [], isFetching } = useQuery({
-    queryKey: ["users", "search", debouncedQuery],
-    queryFn: () => window.ado.users.search(debouncedQuery),
-    enabled: debouncedQuery.length >= 2,
+  // Fetch all project users
+  const { data: allUsers = [], isLoading } = useQuery({
+    queryKey: ["projectUsers"],
+    queryFn: () => window.ado.identities.listProjectUsers(),
     staleTime: 1000 * 60 * 5,
   });
 
-  const handleSelect = (user: UserSearchResult | null) => {
+  // Filter users on client side
+  const filteredUsers = useMemo(() => {
+    if (!searchQuery) return allUsers;
+    const query = searchQuery.toLowerCase();
+    return allUsers.filter(
+      (user) =>
+        user.displayName.toLowerCase().includes(query) ||
+        user.uniqueName.toLowerCase().includes(query),
+    );
+  }, [allUsers, searchQuery]);
+
+  const handleSelect = (user: Identity | null) => {
     onChange(user);
     setOpen(false);
     setSearchQuery("");
@@ -56,16 +57,9 @@ export function AssigneeCombobox({ value, onChange, disabled }: AssigneeCombobox
           className="h-8 justify-between border border-alpha/10 rounded-lg px-3 font-normal hover:bg-gray-200/70 focus-visible:border-blue-500 transition-colors min-w-48"
           disabled={disabled}
         >
-          <div className="flex items-center gap-2 truncate">
-            {value ? (
-              <>
-                <Avatar size="xs" fallback={value.displayName} />
-                <span className="truncate text-sm">{value.displayName}</span>
-              </>
-            ) : (
-              <span className="text-sm text-gray-500">Unassigned</span>
-            )}
-          </div>
+          <span className="truncate text-sm">
+            {value ? value.displayName : <span className="text-gray-500">Unassigned</span>}
+          </span>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -77,13 +71,9 @@ export function AssigneeCombobox({ value, onChange, disabled }: AssigneeCombobox
             onValueChange={setSearchQuery}
           />
           <CommandList>
-            {debouncedQuery.length < 2 ? (
-              <div className="py-6 text-center text-sm text-gray-500">
-                Type at least 2 characters to search
-              </div>
-            ) : isFetching ? (
-              <div className="py-6 text-center text-sm text-gray-500">Searching...</div>
-            ) : users.length === 0 ? (
+            {isLoading ? (
+              <div className="py-6 text-center text-sm text-gray-500">Loading users...</div>
+            ) : filteredUsers.length === 0 ? (
               <CommandEmpty>No users found.</CommandEmpty>
             ) : (
               <CommandGroup>
@@ -93,16 +83,18 @@ export function AssigneeCombobox({ value, onChange, disabled }: AssigneeCombobox
                     Unassign
                   </CommandItem>
                 )}
-                {users.map((user) => (
-                  <CommandItem key={user.id} onSelect={() => handleSelect(user)}>
+                {filteredUsers.map((user) => (
+                  <CommandItem key={user.id} onSelect={() => handleSelect(user)} className="justify-between">
+                    <div className="flex items-center gap-2 truncate">
+                      <Avatar size="sm" fallback={user.displayName} image={user.imageUrl} />
+                      <span className="truncate">{user.displayName}</span>
+                    </div>
                     <Check
                       className={cn(
-                        "mr-2 h-4 w-4",
+                        "h-4 w-4 shrink-0",
                         value?.uniqueName === user.uniqueName ? "opacity-100" : "opacity-0",
                       )}
                     />
-                    <Avatar size="xs" fallback={user.displayName} image={user.imageUrl} />
-                    <span className="ml-2 truncate">{user.displayName}</span>
                   </CommandItem>
                 ))}
               </CommandGroup>

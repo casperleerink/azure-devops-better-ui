@@ -48,6 +48,18 @@ export type WorkItemUpdatePatch = {
   iterationPath?: string;
 };
 
+/**
+ * JSON Patch operations for Azure DevOps API
+ * Discriminated union ensures type safety based on operation type
+ */
+export type AdoPatchOperation =
+  | { op: "add"; path: string; value: unknown }
+  | { op: "replace"; path: string; value: unknown }
+  | { op: "remove"; path: string }
+  | { op: "test"; path: string; value: unknown }
+  | { op: "copy"; from: string; path: string }
+  | { op: "move"; from: string; path: string };
+
 export type AdoConfig = {
   organizationUrl: string;
   projectName: string;

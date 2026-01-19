@@ -51,16 +51,19 @@ Run the project's test suite and verify:
 
 ## Completion Signal Check
 
-**CRITICAL:** Only output the magic phrase when **ALL** tasks in `IMPLEMENTATION_PLAN.md` are complete.
+**CRITICAL:** Output the magic phrase if the current task is fully complete and passes all quality checks.
 
 Check:
 - [ ] Current task implementation matches all requirements
 - [ ] All tests pass
+- [ ] No lint errors
+- [ ] No TypeScript errors
 - [ ] All acceptance criteria verified
 - [ ] Changes committed and pushed
 - [ ] Task marked as complete in IMPLEMENTATION_PLAN.md
-- [ ] **ALL** tasks in IMPLEMENTATION_PLAN.md are now complete
 
-**If ALL checks pass (including all tasks complete), output:** `<promise>DONE</promise>`
+**If ALL checks pass, output:** `<promise>DONE</promise>`
 
-**If ANY check fails OR there are remaining incomplete tasks:** You are finished but do NOT output the magic phrase.
+**If ANY check fails (tests, lint, TypeScript, etc):** You are finished but do NOT output the magic phrase.
+
+The loop will continue to the next task automatically. There may be more tasks remaining - that's fine!

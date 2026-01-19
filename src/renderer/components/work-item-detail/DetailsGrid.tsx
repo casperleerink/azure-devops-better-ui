@@ -1,4 +1,4 @@
-import type { Iteration, UserSearchResult, WorkItemDetail, WorkItemTypeState } from "@shared/types";
+import type { Identity, Iteration, WorkItemDetail, WorkItemTypeState } from "@shared/types";
 import { useQuery } from "@tanstack/react-query";
 import { Calendar, Check, ChevronsUpDown, CircleDot, Folder, GitBranch, User } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -61,7 +61,7 @@ export function DetailsGrid({ workItem, states }: DetailsGridProps) {
     iterationMutation.mutate(newPath);
   };
 
-  const handleAssigneeChange = (user: UserSearchResult | null) => {
+  const handleAssigneeChange = (user: Identity | null) => {
     if (user) {
       setLocalAssignee({ displayName: user.displayName, uniqueName: user.uniqueName });
       assigneeMutation.mutate(user.uniqueName);

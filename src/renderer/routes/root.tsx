@@ -49,7 +49,7 @@ export function RootLayout() {
           </Suspense>
         </nav>
       </header>
-      <main className="flex-1 overflow-auto bg-gray-100">
+      <main className="flex-1 overflow-auto bg-gray-50">
         <Outlet />
       </main>
     </div>

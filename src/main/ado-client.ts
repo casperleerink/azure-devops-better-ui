@@ -1,4 +1,5 @@
 import type {
+  AdoPatchOperation,
   AreaPath,
   Identity,
   Iteration,
@@ -11,6 +12,20 @@ import type {
   WorkItemTypeState,
   WorkItemUpdatePatch,
 } from "../shared/types";
+import { z } from "zod";
+import {
+  type AdoBatchWorkItems,
+  AdoBatchWorkItemsSchema,
+  type AdoClassificationNode,
+  AdoClassificationNodeSchema,
+  AdoConnectionDataSchema,
+  AdoIdentitySearchResultSchema,
+  AdoIterationsSchema,
+  type AdoWorkItem,
+  AdoWorkItemSchema,
+  AdoWorkItemTypeStatesSchema,
+  AdoWiqlResultSchema,
+} from "./ado-schemas";
 import { getPat } from "./secure-store";
 import { getConfig } from "./store";
 
@@ -85,6 +100,29 @@ async function adoFetchOrg<T>(endpoint: string, options: RequestInit = {}): Prom
   return adoFetchInternal<T>(endpoint, options, false);
 }
 
+/**
+ * Fetch from Azure DevOps API with Zod schema validation
+ * Throws an error if the response doesn't match the expected schema
+ */
+async function adoFetchValidated<T>(
+  endpoint: string,
+  schema: z.ZodType<T>,
+  options: RequestInit = {},
+  includeProject = true,
+): Promise<T> {
+  const rawResponse = await adoFetchInternal<unknown>(endpoint, options, includeProject);
+
+  const result = schema.safeParse(rawResponse);
+  if (!result.success) {
+    console.error("Azure DevOps API validation error:", result.error.format());
+    throw new Error(
+      `Invalid response from Azure DevOps API (${endpoint}): ${result.error.message}`,
+    );
+  }
+
+  return result.data;
+}
+
 export async function testConnection(): Promise<{ success: boolean; error?: string }> {
   try {
     const config = getConfig();
@@ -109,19 +147,12 @@ export async function testConnection(): Promise<{ success: boolean; error?: stri
 }
 
 export async function getCurrentUser(): Promise<Identity> {
-  const result = await adoFetchOrg<{
-    authenticatedUser: {
-      id: string;
-      descriptor: string;
-      subjectDescriptor: string;
-      providerDisplayName: string;
-      customDisplayName?: string;
-      isActive: boolean;
-      properties: {
-        Account: { $value: string };
-      };
-    };
-  }>("connectionData?api-version=7.1-preview");
+  const result = await adoFetchValidated(
+    "connectionData?api-version=7.1-preview",
+    AdoConnectionDataSchema,
+    {},
+    false,
+  );
 
   return {
     id: result.authenticatedUser.id,
@@ -185,7 +216,18 @@ function buildWiqlQuery(filters: WorkItemListFilters): string {
   return `SELECT [System.Id] FROM WorkItems ${whereClause} ${orderBy}`;
 }
 
-function mapWorkItem(item: any): WorkItemSummary {
+function mapWorkItem(item: AdoWorkItem): WorkItemSummary {
+  // Validate required fields are present (should always be true for full work item fetches)
+  if (!item.fields["System.Title"]) {
+    throw new Error(`Work item ${item.id} missing required field: System.Title`);
+  }
+  if (!item.fields["System.WorkItemType"]) {
+    throw new Error(`Work item ${item.id} missing required field: System.WorkItemType`);
+  }
+  if (!item.fields["System.State"]) {
+    throw new Error(`Work item ${item.id} missing required field: System.State`);
+  }
+
   return {
     id: item.id,
     url: item.url,
@@ -204,14 +246,14 @@ function mapWorkItem(item: any): WorkItemSummary {
   };
 }
 
-function mapWorkItemDetail(item: any): WorkItemDetail {
+function mapWorkItemDetail(item: AdoWorkItem): WorkItemDetail {
   const summary = mapWorkItem(item);
 
   // Find parent relation
   let parentId: number | undefined;
   if (item.relations) {
     const parentRelation = item.relations.find(
-      (r: any) => r.rel === "System.LinkTypes.Hierarchy-Reverse",
+      (r) => r.rel === "System.LinkTypes.Hierarchy-Reverse",
     );
     if (parentRelation) {
       const urlParts = parentRelation.url.split("/");
@@ -231,7 +273,7 @@ export async function listWorkItems(filters: WorkItemListFilters): Promise<WorkI
   const query = buildWiqlQuery(filters);
 
   // Run WIQL query to get IDs
-  const wiqlResult = await adoFetch<{ workItems: { id: number }[] }>("wit/wiql?api-version=7.1", {
+  const wiqlResult = await adoFetchValidated("wit/wiql?api-version=7.1", AdoWiqlResultSchema, {
     method: "POST",
     body: JSON.stringify({ query }),
   });
@@ -258,8 +300,9 @@ export async function listWorkItems(filters: WorkItemListFilters): Promise<WorkI
       "System.ChangedDate",
     ].join(",");
 
-    const batchResult = await adoFetch<{ value: any[] }>(
+    const batchResult = await adoFetchValidated(
       `wit/workitems?ids=${idsParam}&fields=${fields}&api-version=7.1`,
+      AdoBatchWorkItemsSchema,
     );
 
     for (const item of batchResult.value) {
@@ -272,12 +315,15 @@ export async function listWorkItems(filters: WorkItemListFilters): Promise<WorkI
 }
 
 export async function getWorkItem(id: number): Promise<WorkItemDetail> {
-  const result = await adoFetch<any>(`wit/workitems/${id}?$expand=relations&api-version=7.1`);
+  const result = await adoFetchValidated(
+    `wit/workitems/${id}?$expand=relations&api-version=7.1`,
+    AdoWorkItemSchema,
+  );
   return mapWorkItemDetail(result);
 }
 
 export async function createWorkItem(payload: WorkItemCreatePayload): Promise<WorkItemDetail> {
-  const patchDoc: { op: string; path: string; value: any }[] = [
+  const patchDoc: AdoPatchOperation[] = [
     { op: "add", path: "/fields/System.Title", value: payload.title },
   ];
 
@@ -327,13 +373,17 @@ export async function createWorkItem(payload: WorkItemCreatePayload): Promise<Wo
   }
 
   const typeEncoded = encodeURIComponent(payload.type);
-  const result = await adoFetch<any>(`wit/workitems/$${typeEncoded}?api-version=7.1`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json-patch+json",
+  const result = await adoFetchValidated(
+    `wit/workitems/$${typeEncoded}?api-version=7.1`,
+    AdoWorkItemSchema,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json-patch+json",
+      },
+      body: JSON.stringify(patchDoc),
     },
-    body: JSON.stringify(patchDoc),
-  });
+  );
 
   return mapWorkItemDetail(result);
 }
@@ -342,7 +392,7 @@ export async function updateWorkItem(
   id: number,
   patch: WorkItemUpdatePatch,
 ): Promise<WorkItemDetail> {
-  const patchDoc: { op: string; path: string; value: any }[] = [];
+  const patchDoc: AdoPatchOperation[] = [];
 
   if (patch.title !== undefined) {
     patchDoc.push({
@@ -394,20 +444,25 @@ export async function updateWorkItem(
     });
   }
 
-  const result = await adoFetch<any>(`wit/workitems/${id}?api-version=7.1`, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json-patch+json",
+  const result = await adoFetchValidated(
+    `wit/workitems/${id}?api-version=7.1`,
+    AdoWorkItemSchema,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json-patch+json",
+      },
+      body: JSON.stringify(patchDoc),
     },
-    body: JSON.stringify(patchDoc),
-  });
+  );
 
   return mapWorkItemDetail(result);
 }
 
 export async function searchIdentities(query: string): Promise<Identity[]> {
-  const result = await adoFetchOrg<{ results: any[] }>(
+  const result = await adoFetchValidated(
     `IdentityPicker/Identities?api-version=7.1-preview.1`,
+    AdoIdentitySearchResultSchema,
     {
       method: "POST",
       body: JSON.stringify({
@@ -417,21 +472,23 @@ export async function searchIdentities(query: string): Promise<Identity[]> {
         options: { MinResults: 5, MaxResults: 20 },
       }),
     },
+    false,
   );
 
-  return result.results.flatMap((r: any) =>
-    r.identities.map((i: any) => ({
-      id: i.localId,
+  return result.results.flatMap((r) =>
+    r.identities.map((i) => ({
+      id: i.localId || i.id,
       displayName: i.displayName,
-      uniqueName: i.signInAddress || i.samAccountName,
-      imageUrl: i.image,
+      uniqueName: i.signInAddress || i.samAccountName || i.uniqueName || "",
+      imageUrl: i.image || i.imageUrl,
     })),
   );
 }
 
 export async function searchUsers(query: string): Promise<UserSearchResult[]> {
-  const result = await adoFetchOrg<{ results: any[] }>(
+  const result = await adoFetchValidated(
     `IdentityPicker/Identities?api-version=7.1-preview.1`,
+    AdoIdentitySearchResultSchema,
     {
       method: "POST",
       body: JSON.stringify({
@@ -441,14 +498,15 @@ export async function searchUsers(query: string): Promise<UserSearchResult[]> {
         options: { MinResults: 5, MaxResults: 20 },
       }),
     },
+    false,
   );
 
-  return result.results.flatMap((r: any) =>
-    r.identities.map((i: any) => ({
-      id: i.localId,
+  return result.results.flatMap((r) =>
+    r.identities.map((i) => ({
+      id: i.localId || i.id,
       displayName: i.displayName,
-      uniqueName: i.signInAddress || i.samAccountName,
-      imageUrl: i.image,
+      uniqueName: i.signInAddress || i.samAccountName || i.uniqueName || "",
+      imageUrl: i.image || i.imageUrl,
     })),
   );
 }
@@ -473,8 +531,9 @@ export async function listProjectUsers(): Promise<Identity[]> {
   const ids = wiqlResult.workItems.slice(0, BATCH_SIZE).map((w) => w.id);
   const idsParam = ids.join(",");
 
-  const result = await adoFetch<{ value: any[] }>(
+  const result = await adoFetchValidated(
     `wit/workitems?ids=${idsParam}&fields=System.AssignedTo&api-version=7.1`,
+    AdoBatchWorkItemsSchema,
   );
 
   const uniqueUsers: Map<string, Identity> = new Map();
@@ -485,7 +544,7 @@ export async function listProjectUsers(): Promise<Identity[]> {
       uniqueUsers.set(assignedTo.id, {
         id: assignedTo.id,
         displayName: assignedTo.displayName,
-        uniqueName: assignedTo.uniqueName,
+        uniqueName: assignedTo.uniqueName || assignedTo.displayName,
         imageUrl: assignedTo.imageUrl,
       });
     }
@@ -498,8 +557,9 @@ export async function listProjectUsers(): Promise<Identity[]> {
 
 export async function getWorkItemTypeStates(type: WorkItemType): Promise<WorkItemTypeState[]> {
   const typeEncoded = encodeURIComponent(type);
-  const result = await adoFetch<{ value: WorkItemTypeState[] }>(
+  const result = await adoFetchValidated(
     `wit/workitemtypes/${typeEncoded}/states?api-version=7.1`,
+    AdoWorkItemTypeStatesSchema,
   );
   return result.value;
 }
@@ -510,17 +570,10 @@ export async function listIterations(): Promise<Iteration[]> {
     throw new Error("Azure DevOps not configured");
   }
 
-  const result = await adoFetch<{
-    value: {
-      id: string;
-      name: string;
-      path: string;
-      attributes?: {
-        startDate?: string;
-        finishDate?: string;
-      };
-    }[];
-  }>(`work/teamsettings/iterations?api-version=7.1`);
+  const result = await adoFetchValidated(
+    `work/teamsettings/iterations?api-version=7.1`,
+    AdoIterationsSchema,
+  );
 
   // Filter to iterations that ended within the last 3 months, or are current/future
   const threeMonthsAgo = new Date();
@@ -544,22 +597,15 @@ export async function listIterations(): Promise<Iteration[]> {
 }
 
 export async function listAreaPaths(): Promise<AreaPath[]> {
-  interface ClassificationNode {
-    id: number;
-    name: string;
-    path: string;
-    hasChildren: boolean;
-    children?: ClassificationNode[];
-  }
-
-  const result = await adoFetch<ClassificationNode>(
+  const result = await adoFetchValidated(
     "wit/classificationnodes/areas?$depth=10&api-version=7.1",
+    AdoClassificationNodeSchema,
   );
 
   // Flatten the tree structure into a list
   const areas: AreaPath[] = [];
 
-  function traverse(node: ClassificationNode) {
+  function traverse(node: AdoClassificationNode) {
     // API returns paths like "\ProjectName\Area\ActualArea\SubArea"
     // but work items expect "ProjectName\ActualArea\SubArea"
     // So we need to: 1) strip leading backslash, 2) remove the "\Area" segment
