@@ -327,8 +327,10 @@ export async function listChildren(parentId: number): Promise<WorkItemSummary[]>
     return [];
   }
 
-  // Extract target work item IDs (exclude the source parent)
-  const ids = wiqlResult.workItemRelations.filter((rel) => rel.target).map((rel) => rel.target!.id);
+  // Extract target work item IDs (exclude the source parent and any self-references)
+  const ids = wiqlResult.workItemRelations
+    .filter((rel) => rel.target && rel.target.id !== parentId)
+    .map((rel) => rel.target!.id);
 
   if (ids.length === 0) {
     return [];
@@ -502,6 +504,71 @@ export async function updateWorkItem(
     },
     body: JSON.stringify(patchDoc),
   });
+
+  return mapWorkItemDetail(result);
+}
+
+export async function updateParent(
+  workItemId: number,
+  parentId: number | null,
+): Promise<WorkItemDetail> {
+  // Fetch current work item with relations to find existing parent
+  const currentWorkItem = await adoFetchValidated(
+    `wit/workitems/${workItemId}?$expand=relations&api-version=7.1`,
+    AdoWorkItemSchema,
+  );
+
+  const patchDoc: AdoPatchOperation[] = [];
+
+  // Find existing parent relation index
+  const existingParentIndex = currentWorkItem.relations?.findIndex(
+    (r) => r.rel === "System.LinkTypes.Hierarchy-Reverse",
+  );
+
+  // Remove existing parent if it exists
+  if (existingParentIndex !== undefined && existingParentIndex >= 0) {
+    patchDoc.push({
+      op: "remove",
+      path: `/relations/${existingParentIndex}`,
+    });
+  }
+
+  // Add new parent if provided
+  if (parentId !== null) {
+    const config = getConfig();
+    if (!config) {
+      throw new Error("Azure DevOps not configured");
+    }
+
+    patchDoc.push({
+      op: "add",
+      path: "/relations/-",
+      value: {
+        rel: "System.LinkTypes.Hierarchy-Reverse",
+        url: `${config.organizationUrl}/${config.projectName}/_apis/wit/workitems/${parentId}`,
+        attributes: {
+          comment: "",
+        },
+      },
+    });
+  }
+
+  // If no operations needed (no existing parent and no new parent), return current work item
+  if (patchDoc.length === 0) {
+    return mapWorkItemDetail(currentWorkItem);
+  }
+
+  const result = await adoFetchValidated(
+    `wit/workitems/${workItemId}?api-version=7.1`,
+    AdoWorkItemSchema,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json-patch+json",
+      },
+      body: JSON.stringify(patchDoc),
+    },
+  );
 
   return mapWorkItemDetail(result);
 }

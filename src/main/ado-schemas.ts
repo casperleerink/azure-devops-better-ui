@@ -61,11 +61,13 @@ export type AdoWorkItem = z.infer<typeof AdoWorkItemSchema>;
 
 // WIQL query results
 export const AdoWiqlResultSchema = z.object({
-  workItems: z.array(
-    z.object({
-      id: z.number(),
-    }),
-  ),
+  workItems: z
+    .array(
+      z.object({
+        id: z.number(),
+      }),
+    )
+    .optional(),
   workItemRelations: z
     .array(
       z.object({

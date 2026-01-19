@@ -19,6 +19,7 @@ import {
   searchIdentities,
   searchUsers,
   testConnection,
+  updateParent,
   updateWorkItem,
 } from "./ado-client";
 import { clearPat, hasPat, setPat } from "./secure-store";
@@ -93,6 +94,13 @@ export function registerIpcHandlers() {
   ipcMain.handle("ado:workItems:listChildren", async (_, parentId: number) => {
     return listChildren(parentId);
   });
+
+  ipcMain.handle(
+    "ado:workItems:updateParent",
+    async (_, workItemId: number, parentId: number | null) => {
+      return updateParent(workItemId, parentId);
+    },
+  );
 
   // Iteration handlers
   ipcMain.handle("ado:iterations:list", async () => {

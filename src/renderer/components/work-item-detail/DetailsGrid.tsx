@@ -1,6 +1,21 @@
-import type { Identity, Iteration, WorkItemDetail, WorkItemTypeState } from "@shared/types";
+import type {
+  Identity,
+  Iteration,
+  WorkItemDetail,
+  WorkItemSummary,
+  WorkItemTypeState,
+} from "@shared/types";
 import { useQuery } from "@tanstack/react-query";
-import { Calendar, Check, ChevronsUpDown, CircleDot, Folder, GitBranch, User } from "lucide-react";
+import {
+  Calendar,
+  Check,
+  ChevronsUpDown,
+  CircleDot,
+  Folder,
+  GitBranch,
+  Network,
+  User,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CardRow, CardRowLabel } from "@/components/ui/card";
@@ -15,8 +30,10 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { SaveIndicator } from "@/components/ui/save-indicator";
 import { useFieldMutation } from "@/hooks/useFieldMutation";
+import { useParentMutation } from "@/hooks/useParentMutation";
 import { cn } from "@/lib/utils";
 import { AssigneeCombobox } from "./AssigneeCombobox";
+import { ParentWorkItemCombobox } from "./ParentWorkItemCombobox";
 import { StateSelect } from "./StateSelect";
 
 interface DetailsGridProps {
@@ -28,12 +45,16 @@ export function DetailsGrid({ workItem, states }: DetailsGridProps) {
   const [localState, setLocalState] = useState(workItem.state);
   const [localIteration, setLocalIteration] = useState(workItem.iterationPath || "");
   const [localAssignee, setLocalAssignee] = useState(workItem.assignedTo);
+  const [localParent, setLocalParent] = useState<{ id: number; title: string } | undefined>(
+    workItem.parentId ? { id: workItem.parentId, title: "" } : undefined,
+  );
   const [iterationOpen, setIterationOpen] = useState(false);
 
   // Auto-save mutations
   const stateMutation = useFieldMutation(workItem.id, "state");
   const iterationMutation = useFieldMutation(workItem.id, "iterationPath");
   const assigneeMutation = useFieldMutation(workItem.id, "assignedTo");
+  const parentMutation = useParentMutation(workItem.id);
 
   // Fetch iterations for the picker
   const { data: iterations = [] } = useQuery({
@@ -42,12 +63,39 @@ export function DetailsGrid({ workItem, states }: DetailsGridProps) {
     staleTime: 1000 * 60 * 60,
   });
 
+  // Fetch parent work item for display
+  const { data: parentWorkItem } = useQuery({
+    queryKey: ["workItem", workItem.parentId],
+    queryFn: () => window.ado.workItems.get(workItem.parentId!),
+    enabled: !!workItem.parentId,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  // Fetch children for circular reference prevention
+  const { data: children = [] } = useQuery({
+    queryKey: ["workItems", "children", workItem.id],
+    queryFn: () => window.ado.workItems.listChildren(workItem.id),
+    staleTime: 1000 * 60 * 2,
+  });
+
   // Sync local state when work item changes (e.g., after mutation success)
   useEffect(() => {
     setLocalState(workItem.state);
     setLocalIteration(workItem.iterationPath || "");
     setLocalAssignee(workItem.assignedTo);
-  }, [workItem.state, workItem.iterationPath, workItem.assignedTo]);
+
+    if (workItem.parentId && parentWorkItem) {
+      setLocalParent({ id: parentWorkItem.id, title: parentWorkItem.title });
+    } else {
+      setLocalParent(undefined);
+    }
+  }, [
+    workItem.state,
+    workItem.iterationPath,
+    workItem.assignedTo,
+    workItem.parentId,
+    parentWorkItem,
+  ]);
 
   const handleStateChange = (newState: string) => {
     setLocalState(newState);
@@ -71,6 +119,15 @@ export function DetailsGrid({ workItem, states }: DetailsGridProps) {
     }
   };
 
+  const handleParentChange = (parent: WorkItemSummary | null) => {
+    if (parent) {
+      setLocalParent({ id: parent.id, title: parent.title });
+    } else {
+      setLocalParent(undefined);
+    }
+    parentMutation.mutate(parent);
+  };
+
   const selectedIteration = iterations.find((i) => i.path === localIteration);
 
   return (
@@ -86,6 +143,23 @@ export function DetailsGrid({ workItem, states }: DetailsGridProps) {
           <SaveIndicator
             isPending={assigneeMutation.isPending}
             isSuccess={assigneeMutation.isSuccess}
+          />
+        </div>
+      </CardRow>
+      <CardRow>
+        <CardRowLabel icon={<Network />} label="Parent" />
+        <div className="flex items-center gap-2">
+          <ParentWorkItemCombobox
+            workItemId={workItem.id}
+            workItemType={workItem.type}
+            value={localParent}
+            childIds={children.map((c) => c.id)}
+            onChange={handleParentChange}
+            disabled={parentMutation.isPending}
+          />
+          <SaveIndicator
+            isPending={parentMutation.isPending}
+            isSuccess={parentMutation.isSuccess}
           />
         </div>
       </CardRow>

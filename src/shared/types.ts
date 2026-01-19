@@ -128,6 +128,10 @@ export type IpcChannels = {
   "ado:workItems:update": (id: number, patch: WorkItemUpdatePatch) => Promise<WorkItemDetail>;
   "ado:workItems:getTypeStates": (type: WorkItemType) => Promise<WorkItemTypeState[]>;
   "ado:workItems:listChildren": (parentId: number) => Promise<WorkItemSummary[]>;
+  "ado:workItems:updateParent": (
+    workItemId: number,
+    parentId: number | null,
+  ) => Promise<WorkItemDetail>;
 
   // Iterations
   "ado:iterations:list": () => Promise<Iteration[]>;

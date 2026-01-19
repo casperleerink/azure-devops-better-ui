@@ -48,6 +48,8 @@ const api = {
       ipcRenderer.invoke("ado:workItems:getTypeStates", type),
     listChildren: (parentId: number): Promise<WorkItemSummary[]> =>
       ipcRenderer.invoke("ado:workItems:listChildren", parentId),
+    updateParent: (workItemId: number, parentId: number | null): Promise<WorkItemDetail> =>
+      ipcRenderer.invoke("ado:workItems:updateParent", workItemId, parentId),
   },
   iterations: {
     list: (): Promise<Iteration[]> => ipcRenderer.invoke("ado:iterations:list"),
