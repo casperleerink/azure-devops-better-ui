@@ -16,10 +16,23 @@ interface DescriptionEditorProps {
 
 const extensions = [
   StarterKit.configure({
-    heading: { levels: [1, 2, 3] },
+    heading: {
+      levels: [1, 2, 3],
+    },
+    bulletList: {
+      keepMarks: true,
+      keepAttributes: false,
+    },
+    orderedList: {
+      keepMarks: true,
+      keepAttributes: false,
+    },
   }),
   Link.configure({
     openOnClick: false,
+    HTMLAttributes: {
+      class: "text-blue-500 underline hover:text-blue-600",
+    },
   }),
 ];
 
@@ -39,7 +52,16 @@ export function DescriptionEditor({
           "min-h-[200px] p-4",
           "focus:outline-none",
           "text-alpha",
+          // Links
           "[&_a]:text-blue-500 [&_a]:underline [&_a:hover]:text-blue-600 [&_a]:transition-colors",
+          // Headings
+          "[&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mb-4 [&_h1]:mt-6 [&_h1]:text-gray-950",
+          "[&_h2]:text-xl [&_h2]:font-bold [&_h2]:mb-3 [&_h2]:mt-5 [&_h2]:text-gray-950",
+          "[&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mb-2 [&_h3]:mt-4 [&_h3]:text-gray-950",
+          // Lists
+          "[&_ul]:list-disc [&_ul]:ml-6 [&_ul]:my-4",
+          "[&_ol]:list-decimal [&_ol]:ml-6 [&_ol]:my-4",
+          "[&_li]:my-1",
         ),
       },
     },

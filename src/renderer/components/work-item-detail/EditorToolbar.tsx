@@ -1,16 +1,8 @@
 import type { Editor } from "@tiptap/react";
-import {
-  Bold,
-  Heading1,
-  Heading2,
-  Heading3,
-  Italic,
-  Link as LinkIcon,
-  List,
-  ListOrdered,
-} from "lucide-react";
+import { Bold, Heading1, Heading2, Heading3, Italic, List, ListOrdered } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { LinkPopover } from "./LinkPopover";
 
 interface EditorToolbarProps {
   editor: Editor | null;
@@ -47,22 +39,6 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
 
   const toggleOrderedList = () => {
     editor.chain().focus().toggleOrderedList().run();
-  };
-
-  const toggleLink = () => {
-    const previousUrl = editor.getAttributes("link").href as string | undefined;
-    const url = window.prompt("URL", previousUrl);
-
-    if (url === null) {
-      return;
-    }
-
-    if (url === "") {
-      editor.chain().focus().extendMarkRange("link").unsetLink().run();
-      return;
-    }
-
-    editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
   };
 
   return (
@@ -150,16 +126,7 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
 
       <div className="w-px h-6 bg-alpha/10 mx-1" />
 
-      <Button
-        variant="ghost"
-        size="icon-sm"
-        type="button"
-        onClick={toggleLink}
-        className={cn(editor.isActive("link") && "bg-gray-200 text-gray-950")}
-        title="Link"
-      >
-        <LinkIcon />
-      </Button>
+      <LinkPopover editor={editor} />
     </div>
   );
 }
