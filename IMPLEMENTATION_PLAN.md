@@ -25,8 +25,8 @@
 - [x] [MEDIUM] Add query invalidation after successful child creation to refresh list - from spec 004
 
 ### Polish
-- [ ] [LOW] Test all work item type hierarchies (Epic, Feature, User Story, Task) - from spec 004
-- [ ] [LOW] Verify section is hidden for Task work items - from spec 004
-- [ ] [LOW] Test click navigation from child rows to detail pages - from spec 004
-- [ ] [LOW] Test empty state display and messaging - from spec 004
+- [x] [LOW] Test all work item type hierarchies (Epic, Feature, User Story, Task) - from spec 004
+- [x] [LOW] Verify section is hidden for Task work items - from spec 004
+- [x] [LOW] Test click navigation from child rows to detail pages - from spec 004
+- [x] [LOW] Test empty state display and messaging - from spec 004
 
