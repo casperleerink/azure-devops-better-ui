@@ -4,6 +4,8 @@ import { app, safeStorage } from "electron";
 
 const PAT_FILE = "pat.enc";
 
+let cachedPat: string | null = null;
+
 function getPatPath(): string {
   const userDataPath = app.getPath("userData");
   return path.join(userDataPath, PAT_FILE);
@@ -23,14 +25,19 @@ export function setPat(pat: string): void {
   }
 
   fs.writeFileSync(patPath, encrypted);
+  cachedPat = pat;
 }
 
 export function getPat(): string | null {
+  if (cachedPat !== null) {
+    return cachedPat;
+  }
   try {
     const patPath = getPatPath();
     if (fs.existsSync(patPath)) {
       const encrypted = fs.readFileSync(patPath);
-      return safeStorage.decryptString(encrypted);
+      cachedPat = safeStorage.decryptString(encrypted);
+      return cachedPat;
     }
   } catch (error) {
     console.error("Failed to read PAT:", error);
@@ -39,6 +46,7 @@ export function getPat(): string | null {
 }
 
 export function clearPat(): void {
+  cachedPat = null;
   const patPath = getPatPath();
   if (fs.existsSync(patPath)) {
     fs.unlinkSync(patPath);

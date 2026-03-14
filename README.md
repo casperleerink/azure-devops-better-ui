@@ -112,6 +112,18 @@ bun run dist
 
 Output will be in the `release/` directory.
 
+### macOS: Ad-hoc Code Signing
+
+The app is not signed with an Apple Developer certificate. Without signing, macOS will prompt for your keychain password every time the app launches (due to `safeStorage` accessing the keychain).
+
+After building, ad-hoc sign the app so that "Always Allow" persists across launches:
+
+```bash
+codesign --force --deep --sign - "./release/mac-arm64/Azure DevOps Work Items.app"
+```
+
+Then on the first launch, click **"Always Allow"** when the keychain prompt appears. Subsequent launches should not prompt again.
+
 ## License
 
 ISC
