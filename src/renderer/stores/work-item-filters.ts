@@ -13,6 +13,8 @@ interface WorkItemFiltersState {
   setSelectedIteration: (iteration: Iteration | null) => void;
   toggleType: (type: WorkItemType) => void;
   setTypes: (types: WorkItemType[]) => void;
+  toggleState: (state: string) => void;
+  setStates: (states: string[]) => void;
 }
 
 export const useWorkItemFiltersStore = create<WorkItemFiltersState>((set) => ({
@@ -68,6 +70,28 @@ export const useWorkItemFiltersStore = create<WorkItemFiltersState>((set) => ({
       filters: {
         ...state.filters,
         types,
+      },
+    })),
+
+  toggleState: (state) =>
+    set((prev) => {
+      const current = prev.filters.states ?? [];
+      const next = current.includes(state)
+        ? current.filter((s) => s !== state)
+        : [...current, state];
+      return {
+        filters: {
+          ...prev.filters,
+          states: next.length > 0 ? next : undefined,
+        },
+      };
+    }),
+
+  setStates: (states) =>
+    set((prev) => ({
+      filters: {
+        ...prev.filters,
+        states: states.length > 0 ? states : undefined,
       },
     })),
 }));

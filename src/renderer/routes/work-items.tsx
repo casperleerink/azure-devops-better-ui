@@ -95,7 +95,7 @@ export function WorkItemsPage() {
 
   return (
     <div className="h-full bg-gray-50">
-      <FilterBar users={projectUsers} iterations={iterations} />
+      <FilterBar users={projectUsers} iterations={iterations} statesByType={statesByType} />
 
       <div className="p-6">
         {error ? (
