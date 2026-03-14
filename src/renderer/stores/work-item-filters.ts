@@ -17,7 +17,7 @@ interface WorkItemFiltersState {
 
 export const useWorkItemFiltersStore = create<WorkItemFiltersState>((set) => ({
   filters: {
-    types: ["User Story", "Task"],
+    types: ["User Story", "Task", "Issue", "Bug"],
     assignedTo: "me",
   },
   selectedUser: "me",

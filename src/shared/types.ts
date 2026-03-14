@@ -1,4 +1,4 @@
-export type WorkItemType = "Epic" | "Feature" | "User Story" | "Task";
+export type WorkItemType = "Epic" | "Feature" | "User Story" | "Task" | "Issue" | "Bug";
 
 export type WorkItemSummary = {
   id: number;

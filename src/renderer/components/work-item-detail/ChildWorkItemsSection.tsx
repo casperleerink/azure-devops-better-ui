@@ -19,6 +19,10 @@ function getChildType(parentType: WorkItemType): WorkItemType | null {
       return "Task";
     case "Task":
       return null;
+    case "Issue":
+      return "Task";
+    case "Bug":
+      return "Task";
   }
 }
 

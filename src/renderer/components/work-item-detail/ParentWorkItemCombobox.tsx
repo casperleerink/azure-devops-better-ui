@@ -26,6 +26,10 @@ function getParentType(type: WorkItemType): WorkItemType | null {
       return "Epic";
     case "Epic":
       return null;
+    case "Issue":
+      return "Epic";
+    case "Bug":
+      return "User Story";
   }
 }
 
