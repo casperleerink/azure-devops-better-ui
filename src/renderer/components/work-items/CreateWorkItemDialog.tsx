@@ -105,7 +105,7 @@ export function CreateWorkItemDialog({
 
   const form = useForm({
     defaultValues: {
-      type: (defaultValues?.type ?? "Task") as WorkItemType,
+      type: (defaultValues?.type ?? "User Story") as WorkItemType,
       title: "",
       description: "",
       iteration: null as Iteration | null,
